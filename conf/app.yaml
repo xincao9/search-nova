@@ -13,6 +13,3 @@ server:
     port: 8080
 assets:
     root: ./assets
-    js: ./assets/js
-    css: ./assets/css
-    img: ./assets/img

@@ -52,11 +52,8 @@ func init() {
 	C.SetDefault(constant.ServerPort, 8080)
 	C.SetDefault(constant.ServerCorsAccessControlAllowOrigin, "http://localhost:8081")
 	C.SetDefault(constant.ManagerServerPort, 8090)
-	C.SetDefault(constant.DataSource, "root:asdf@tcp(localhost:3306)/golite?charset=utf8&parseTime=true")
+	C.SetDefault(constant.DataSource, "root:asdf@tcp(localhost:3306)/search_nova?charset=utf8&parseTime=true")
 	C.SetDefault(constant.AssetsRootDir, "./assets")
-	C.SetDefault(constant.AssetsJsDir, "./assets/js")
-	C.SetDefault(constant.AssetsCssDir, "./assets/css")
-	C.SetDefault(constant.AssetsImgDir, "./assets/img")
 	err := C.ReadInConfig()
 	if err != nil {
 		log.Fatalf("Fatal error conf : %v\n", err)

@@ -6,6 +6,7 @@ import (
 	cors "github.com/rs/cors/wrapper/gin"
 	"github.com/sirupsen/logrus"
 	"net/http"
+	"path/filepath"
 	"search-nova/controller/user"
 	"search-nova/internal/authentication"
 	"search-nova/internal/config"
@@ -43,10 +44,11 @@ func main() {
 }
 
 func routeStatic(engine *gin.Engine) {
-	engine.Static("/assets", config.C.GetString(constant.AssetsRootDir))
-	engine.Static("/js", config.C.GetString(constant.AssetsJsDir))
-	engine.Static("/css", config.C.GetString(constant.AssetsCssDir))
-	engine.Static("/img", config.C.GetString(constant.AssetsImgDir))
+	ar := config.C.GetString(constant.AssetsRootDir)
+	engine.Static("/assets", ar)
+	engine.Static("/js", filepath.Join(ar, "js"))
+	engine.Static("/css", filepath.Join(ar, "css"))
+	engine.Static("/img", filepath.Join(ar, "img"))
 	engine.GET("/", func(c *gin.Context) {
 		c.Redirect(http.StatusFound, "/assets")
 	})

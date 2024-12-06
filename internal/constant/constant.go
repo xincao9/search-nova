@@ -9,9 +9,6 @@ const (
 	ManagerServerPort                  = "manager.server.port"
 	DataSource                         = "db.dataSource"
 	AssetsRootDir                      = "assets.root"
-	AssetsJsDir                        = "assets.js"
-	AssetsCssDir                       = "assets.css"
-	AssetsImgDir                       = "assets.img"
 )
 
 const (
