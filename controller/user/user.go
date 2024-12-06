@@ -3,11 +3,11 @@ package user
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"net/http"
 	"search-nova/internal/constant"
 	"search-nova/internal/util"
 	"search-nova/model/user"
 	userService "search-nova/service/user"
-	"net/http"
 	"strconv"
 	"time"
 )

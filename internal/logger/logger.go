@@ -3,10 +3,10 @@ package logger
 import (
 	"github.com/natefinch/lumberjack"
 	"github.com/sirupsen/logrus"
-	"search-nova/internal/config"
-	"search-nova/internal/constant"
 	"log"
 	"path/filepath"
+	"search-nova/internal/config"
+	"search-nova/internal/constant"
 )
 
 var (

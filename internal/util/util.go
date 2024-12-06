@@ -3,9 +3,9 @@ package util
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"search-nova/internal/logger"
 	"net/http"
 	"reflect"
+	"search-nova/internal/logger"
 )
 
 func RenderJSON(c *gin.Context, code int, message string) {

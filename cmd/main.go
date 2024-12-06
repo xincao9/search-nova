@@ -5,13 +5,13 @@ import (
 	"github.com/gin-gonic/gin"
 	cors "github.com/rs/cors/wrapper/gin"
 	"github.com/sirupsen/logrus"
+	"net/http"
 	"search-nova/controller/user"
 	"search-nova/internal/authentication"
 	"search-nova/internal/config"
 	"search-nova/internal/constant"
 	"search-nova/internal/logger"
 	_ "search-nova/internal/manager"
-	"net/http"
 )
 
 func main() {
