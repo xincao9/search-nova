@@ -23,6 +23,7 @@ func init() {
 	if flag.Parsed() == false {
 		flag.Parse()
 	}
+	// 后台进程执行
 	if *d {
 		args := os.Args[1:]
 		for i := 0; i < len(args); i++ {
@@ -32,20 +33,25 @@ func init() {
 			}
 		}
 		cmd := exec.Command(os.Args[0], args...)
-		cmd.Start()
+		err := cmd.Start()
+		if err != nil {
+			log.Fatalf("Fatal error conf : %v\n", err)
+		}
 		fmt.Println("[PID]", cmd.Process.Pid)
 		os.Exit(0)
 	}
-	C = viper.New()
+	// 提取文件名
 	for _, t := range []string{"yaml", "yml"} {
 		if strings.HasSuffix(*c, t) {
 			i := strings.LastIndex(*c, t)
 			*c = string([]byte(*c)[:i-1])
 		}
 	}
+	C = viper.New()
 	C.SetConfigName(*c)
 	C.SetConfigType("yaml")
 	C.AddConfigPath("./conf")
+	// 设置默认配置项
 	C.SetDefault(constant.LoggerDir, "/tmp/search-nova/log")
 	C.SetDefault(constant.LoggerLevel, "debug")
 	C.SetDefault(constant.ServerMode, "debug")
@@ -61,6 +67,7 @@ func init() {
 }
 
 func Route(engine *gin.Engine) {
+	// 提供后台查看运行时配置的管理接口
 	engine.GET("/config", func(c *gin.Context) {
 		c.JSON(http.StatusOK, C.AllSettings())
 	})

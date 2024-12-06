@@ -1,8 +1,8 @@
 CREATE
-DATABASE `{{.Project}}` /*!40100 DEFAULT CHARACTER SET utf8 */;
+DATABASE `search_nova` /*!40100 DEFAULT CHARACTER SET utf8 */;
 
 USE
-`{{.Project}}`;
+`search_nova`;
 
 DROP TABLE IF EXISTS `user`;
 CREATE TABLE `user`
