@@ -13,7 +13,7 @@ func Authentication(c *gin.Context) {
 	t, err := c.Cookie(constant.Token) // 请求必须携带token
 	if err != nil {
 		c.Abort()
-		util.RenderJSON(c, http.StatusBadRequest, "the request must carry u token")
+		util.RenderJSON(c, http.StatusBadRequest, "the request must carry user token")
 		return
 	}
 	u, err := userService.U.GetUserByToken(t)

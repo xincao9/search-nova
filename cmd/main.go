@@ -18,7 +18,10 @@ import (
 func main() {
 	gin.SetMode(config.C.GetString(constant.ServerMode))
 	engine := gin.New()
-	engine.Use(gin.LoggerWithConfig(gin.LoggerConfig{Output: logger.L.WriterLevel(logrus.DebugLevel)}), gin.RecoveryWithWriter(logger.L.WriterLevel(logrus.ErrorLevel)))
+	// http 请求日志记录以及500错误记录
+	engine.Use(gin.LoggerWithConfig(gin.LoggerConfig{Output: logger.L.WriterLevel(logrus.InfoLevel)}))
+	engine.Use(gin.RecoveryWithWriter(logger.L.WriterLevel(logrus.ErrorLevel)))
+	// cors
 	engine.Use(cors.New(cors.Options{
 		AllowedOrigins: []string{config.C.GetString(constant.ServerCorsAccessControlAllowOrigin)},
 		AllowedMethods: []string{
@@ -32,10 +35,13 @@ func main() {
 		AllowedHeaders:   []string{"*"},
 		AllowCredentials: true,
 	}))
+	// 不需要认证的路由
 	user.Route(engine)
+	routeStatic(engine)
+	// 需要认证的路由
 	authorized := engine.Group("/", authentication.Authentication)
 	user.AuthenticationRoute(authorized)
-	routeStatic(engine)
+	// 启动
 	addr := fmt.Sprintf(":%d", config.C.GetInt(constant.ServerPort))
 	logger.L.Infof("Listening and serving HTTP on : %s", addr)
 	if err := engine.Run(addr); err != nil {

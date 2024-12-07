@@ -3,6 +3,7 @@ package user
 import (
 	"crypto/md5"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"github.com/jinzhu/gorm"
 	"search-nova/internal/db"
@@ -64,7 +65,7 @@ func (us *userService) Save(u *user.User) error {
 func (us *userService) GetUserByUsername(username string) (*user.User, error) {
 	u := &user.User{}
 	err := us.o.Where("`username`=?", username).First(u).Error
-	if err == gorm.ErrRecordNotFound {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, nil
 	}
 	if err != nil {
@@ -76,7 +77,7 @@ func (us *userService) GetUserByUsername(username string) (*user.User, error) {
 func (us *userService) GetUserByToken(token string) (*user.User, error) {
 	u := &user.User{}
 	err := us.o.Where("`token`=?", token).First(u).Error
-	if err == gorm.ErrRecordNotFound {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, nil
 	}
 	if err != nil {
@@ -88,7 +89,7 @@ func (us *userService) GetUserByToken(token string) (*user.User, error) {
 func (us *userService) GetUserById(id int64) (*user.User, error) {
 	u := &user.User{}
 	err := us.o.Where("`id`=?", id).First(u).Error
-	if err == gorm.ErrRecordNotFound {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, nil
 	}
 	if err != nil {

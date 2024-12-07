@@ -27,6 +27,8 @@ func init() {
 	if err != nil {
 		log.Fatalf("Fatal error logger : %v\n", err)
 	}
+	L.SetLevel(level)
+	L.Formatter = &logrus.JSONFormatter{}
 	fn := filepath.Join(config.C.GetString(constant.LoggerDir), file)
 	L.Out = &lumberjack.Logger{
 		Filename:   fn,
@@ -35,8 +37,7 @@ func init() {
 		MaxAge:     maxAge,
 		Compress:   compress,
 	}
-	L.SetLevel(level)
-	L.Formatter = &logrus.JSONFormatter{}
+	// 设置系统log
 	log.SetFlags(log.LstdFlags | log.Llongfile)
 	log.SetOutput(L.WriterLevel(logrus.InfoLevel))
 }
