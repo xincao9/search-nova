@@ -13,6 +13,7 @@ import (
 	"search-nova/internal/constant"
 	"search-nova/internal/logger"
 	_ "search-nova/internal/manager"
+	"search-nova/internal/metrics"
 )
 
 func main() {
@@ -41,6 +42,8 @@ func main() {
 	// 需要认证的路由
 	authorized := engine.Group("/", authentication.Authentication)
 	user.AuthenticationRoute(authorized)
+	// metrics
+	engine.Use(metrics.M.HandlerFunc())
 	// 启动
 	addr := fmt.Sprintf(":%d", config.C.GetInt(constant.ServerPort))
 	logger.L.Infof("Listening and serving HTTP on : %s", addr)
