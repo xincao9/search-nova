@@ -19,6 +19,7 @@ func init() {
 	if err != nil {
 		logger.L.Fatalf("Fatal error db: %v\n", err)
 	}
+	// 设置默认使用单数表名
 	O.SingularTable(true)
 }
 
