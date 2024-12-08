@@ -8,7 +8,6 @@ import (
 	"search-nova/internal/util"
 	"search-nova/model/user"
 	userService "search-nova/service/user"
-	"strconv"
 	"time"
 )
 
@@ -34,11 +33,13 @@ func Route(engine *gin.Engine) {
 		c.SetCookie(constant.Token, u.Token, (int)((time.Hour*time.Duration(constant.SessionExpireHour))/time.Second), "/", "*", false, false)
 		util.RenderJSONDetail(c, http.StatusOK, constant.Success, u)
 	}
+	// 登录
 	engine.PUT("/session", save)
 	engine.POST("/session", save)
 }
 
 func AuthenticationRoute(engine *gin.RouterGroup) {
+	// 注销
 	engine.DELETE("/session/:id", func(c *gin.Context) {
 		su, ok := c.Get(constant.SessionUser)
 		if ok == false {
@@ -59,6 +60,7 @@ func AuthenticationRoute(engine *gin.RouterGroup) {
 		}
 		util.RenderJSON(c, http.StatusOK, constant.Success)
 	})
+	// 读取登录用户信息
 	engine.GET("/user", func(c *gin.Context) {
 		su, ok := c.Get(constant.SessionUser)
 		if ok == false {
@@ -66,24 +68,6 @@ func AuthenticationRoute(engine *gin.RouterGroup) {
 			return
 		}
 		u := su.(*user.User)
-		util.RenderJSONDetail(c, http.StatusOK, constant.Success, u)
-	})
-	engine.GET("/user/:id", func(c *gin.Context) {
-		n := c.Param("id")
-		if n == "" {
-			util.RenderJSON(c, http.StatusBadRequest, "id is required")
-			return
-		}
-		id, err := strconv.ParseInt(n, 10, 64)
-		if err != nil {
-			util.RenderJSON(c, http.StatusBadRequest, err.Error())
-			return
-		}
-		u, err := userService.U.GetUserById(id)
-		if err != nil {
-			util.RenderJSON(c, http.StatusInternalServerError, err.Error())
-			return
-		}
 		util.RenderJSONDetail(c, http.StatusOK, constant.Success, u)
 	})
 }
