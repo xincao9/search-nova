@@ -27,7 +27,7 @@ CREATE TABLE `page`
     `title`      char(255) NOT NULL DEFAULT '',
     `describe`   char(255) NOT NULL DEFAULT '',
     `keywords`   char(255) NOT NULL DEFAULT '',
-    `created_at` timestamp NULL DEFAULT NULL,
+    `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     `deleted_at` timestamp NULL DEFAULT NULL,
     `updated_at` timestamp NULL DEFAULT NULL,
     PRIMARY KEY (`id`)
