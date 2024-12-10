@@ -7,7 +7,7 @@ import (
 type Page struct {
 	db.Model
 	Url      string `json:"url" gorm:"column:url"`
-	Title    string `json:"title" gorm:"column:title"`
-	Describe string `json:"describe" gorm:"column:describe"`
+	Title    string `json:"title" gorm:"column:title" goquery:"title"`
+	Describe string `json:"describe" gorm:"column:describe" goquery:"h1"`
 	Keywords string `json:"keywords" gorm:"column:keywords"`
 }

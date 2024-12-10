@@ -14,6 +14,7 @@ import (
 	"search-nova/internal/logger"
 	_ "search-nova/internal/manager"
 	"search-nova/internal/metrics"
+	_ "search-nova/service/page"
 )
 
 func main() {
