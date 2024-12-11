@@ -1,9 +1,11 @@
 package page
 
 import (
+	"bytes"
 	"errors"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/jinzhu/gorm"
+	"golang.org/x/net/html/charset"
 	"net/http"
 	"search-nova/internal/db"
 	"search-nova/internal/logger"
@@ -66,15 +68,19 @@ func new() *pageService {
 }
 
 func (ps *pageService) TextAnalysis(url string) error {
-	res, err := http.Get(url)
+	resp, err := http.Get(url)
 	if err != nil {
 		return err
 	}
-	defer res.Body.Close()
+	defer resp.Body.Close()
+	reader, err := charset.NewReader(resp.Body, resp.Header.Get("Content-Type"))
+	if err != nil {
+		return err
+	}
 	p := &page.Page{
 		Url: url,
 	}
-	doc, err := goquery.NewDocumentFromReader(res.Body)
+	doc, err := goquery.NewDocumentFromReader(reader)
 	if err != nil {
 		return err
 	}
@@ -91,6 +97,17 @@ func (ps *pageService) TextAnalysis(url string) error {
 			p.Keywords = item.AttrOr("content", "")
 		}
 	})
+	var buf bytes.Buffer
+	doc.Find("*").Each(func(i int, s *goquery.Selection) {
+		text := s.Text()
+		for _, r := range text {
+			if buf.Len() >= 10240 {
+				return
+			}
+			buf.WriteRune(r)
+		}
+	})
+	p.Content = buf.String()
 	// TODO 向下遍历
 	return ps.Save(p)
 }
