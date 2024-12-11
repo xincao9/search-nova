@@ -20,7 +20,10 @@ func init() {
 	go func() {
 		ticker := time.NewTicker(time.Hour)
 		for range ticker.C {
-			P.Refresh()
+			err := P.Refresh()
+			if err != nil {
+				logger.L.Errorf("page.Refresh err: %v\n", err)
+			}
 		}
 	}()
 }
@@ -32,13 +35,17 @@ func (ps *pageService) Refresh() error {
 	}
 	var id int64 = 1
 	for ; id <= maxId; id++ {
-		logger.L.Infof("文本解析进度：%d/%d\n", id, maxId)
+		logger.L.Infof("page.Refresh: %d/%d\n", id, maxId)
 		p, err := P.GetPageById(id)
 		if err != nil {
 			logger.L.Errorf("page.GetPageById(%d) err %v\n", id, err)
 			continue
 		}
 		if p == nil {
+			continue
+		}
+		// TODO 已经下载过的，不再下载
+		if p.Title != "" {
 			continue
 		}
 		err = P.TextAnalysis(p.Url)
