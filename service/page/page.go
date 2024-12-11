@@ -11,7 +11,6 @@ import (
 	"search-nova/internal/db"
 	"search-nova/internal/logger"
 	"search-nova/model/page"
-	"strings"
 	"time"
 )
 
@@ -113,8 +112,13 @@ func (ps *pageService) TextAnalysis(url string) error {
 	if p.Keywords == "" && p.Content != "" {
 		x := gojieba.NewJieba()
 		defer x.Free()
-		words := x.Cut(p.Content, true)
-		p.Keywords = strings.Join(words, ",")
+		words := x.ExtractWithWeight(p.Content, 5)
+		var buf bytes.Buffer
+		for _, word := range words {
+			buf.WriteString(word.Word)
+			buf.WriteRune(',')
+		}
+		p.Keywords = buf.String()
 	}
 	// TODO 向下遍历
 	return ps.Save(p)
