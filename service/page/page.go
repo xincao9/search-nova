@@ -5,11 +5,13 @@ import (
 	"errors"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/jinzhu/gorm"
+	"github.com/yanyiwu/gojieba"
 	"golang.org/x/net/html/charset"
 	"net/http"
 	"search-nova/internal/db"
 	"search-nova/internal/logger"
 	"search-nova/model/page"
+	"strings"
 	"time"
 )
 
@@ -20,7 +22,7 @@ var (
 func init() {
 	P = new()
 	go func() {
-		ticker := time.NewTicker(time.Hour)
+		ticker := time.NewTicker(time.Second)
 		for range ticker.C {
 			err := P.Refresh()
 			if err != nil {
@@ -47,9 +49,9 @@ func (ps *pageService) Refresh() error {
 			continue
 		}
 		// TODO 已经下载过的，不再下载
-		if p.Title != "" {
-			continue
-		}
+		//if p.Title != "" {
+		//	continue
+		//}
 		err = P.TextAnalysis(p.Url)
 		if err != nil {
 			logger.L.Errorf("page.TextAnalysis(%s) err %v\n", p.Url, err)
@@ -108,6 +110,12 @@ func (ps *pageService) TextAnalysis(url string) error {
 		}
 	})
 	p.Content = buf.String()
+	if p.Keywords == "" && p.Content != "" {
+		x := gojieba.NewJieba()
+		defer x.Free()
+		words := x.Cut(p.Content, true)
+		p.Keywords = strings.Join(words, ",")
+	}
 	// TODO 向下遍历
 	return ps.Save(p)
 }
