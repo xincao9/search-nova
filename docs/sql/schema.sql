@@ -23,12 +23,11 @@ CREATE TABLE `user`
 CREATE TABLE `page`
 (
     `id`         bigint(11) unsigned NOT NULL AUTO_INCREMENT,
-    `url`        char(255)      NOT NULL DEFAULT '',
-    `title`      char(255)      NOT NULL DEFAULT '',
-    `describe`   char(255)      NOT NULL DEFAULT '',
-    `keywords`   char(255)      NOT NULL DEFAULT '',
-    `content`    varchar(10240) NOT NULL DEFAULT '',
-    `created_at` timestamp      NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `url`        char(255) NOT NULL DEFAULT '',
+    `title`      char(255) NOT NULL DEFAULT '',
+    `describe`   char(255) NOT NULL DEFAULT '',
+    `keywords`   char(255) NOT NULL DEFAULT '',
+    `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     `deleted_at` timestamp NULL DEFAULT NULL,
     `updated_at` timestamp NULL DEFAULT NULL,
     PRIMARY KEY (`id`)

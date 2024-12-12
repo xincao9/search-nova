@@ -9,6 +9,9 @@ const (
 	ManagerServerPort                  = "manager.server.port"
 	DataSource                         = "db.dataSource"
 	AssetsRootDir                      = "assets.root"
+	ElasticsearchAddresses             = "elasticsearch.addresses"
+	ElasticsearchUsername              = "elasticsearch.username"
+	ElasticsearchPassword              = "elasticsearch.password"
 )
 
 const (

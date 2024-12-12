@@ -60,6 +60,9 @@ func init() {
 	C.SetDefault(constant.ManagerServerPort, 8090)
 	C.SetDefault(constant.DataSource, "root:asdf@tcp(localhost:3306)/search_nova?charset=utf8&parseTime=true")
 	C.SetDefault(constant.AssetsRootDir, "./assets")
+	C.SetDefault(constant.ElasticsearchAddresses, []string{"https://127.0.0.1:9200"})
+	C.SetDefault(constant.ElasticsearchUsername, "elastic")
+	C.SetDefault(constant.ElasticsearchPassword, "")
 	err := C.ReadInConfig()
 	if err != nil {
 		log.Fatalf("Fatal error conf : %v\n", err)

@@ -2,6 +2,7 @@ package page
 
 import (
 	"bytes"
+	"crypto/tls"
 	"encoding/json"
 	"errors"
 	"github.com/PuerkitoBio/goquery"
@@ -10,6 +11,8 @@ import (
 	"golang.org/x/net/html/charset"
 	"net/http"
 	"net/url"
+	"search-nova/internal/config"
+	"search-nova/internal/constant"
 	"search-nova/internal/db"
 	"search-nova/internal/logger"
 	"search-nova/model/page"
@@ -30,8 +33,17 @@ func new() (*pageService, error) {
 	ps := &pageService{o: db.O}
 	var err error
 	ps.es, err = elasticsearch.NewClient(elasticsearch.Config{
-		Addresses: []string{"http://localhost:9200"},
+		Addresses: config.C.GetStringSlice(constant.ElasticsearchAddresses),
+		Username:  config.C.GetString(constant.ElasticsearchUsername),
+		Password:  config.C.GetString(constant.ElasticsearchPassword),
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		},
 	})
+	if err != nil {
+		return nil, err
+	}
+	_, err = ps.es.Ping()
 	if err != nil {
 		return nil, err
 	}
@@ -127,14 +139,11 @@ func (ps *pageService) TextAnalysis(urlS string) error {
 	doc.Find("*").Each(func(i int, s *goquery.Selection) {
 		text := s.Text()
 		for _, r := range text {
-			if buf.Len() >= 10240 {
-				return
-			}
 			buf.WriteRune(r)
 		}
 	})
-	p.Content = buf.String()
-	if p.Keywords == "" && p.Content != "" {
+	content := buf.String()
+	if p.Keywords == "" && content != "" {
 		// TODO 提取关键词
 	}
 	err = ps.Save(p)
