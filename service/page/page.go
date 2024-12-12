@@ -30,7 +30,7 @@ func new() (*pageService, error) {
 	ps := &pageService{o: db.O}
 	var err error
 	ps.es, err = elasticsearch.NewClient(elasticsearch.Config{
-		Addresses: []string{"http://127.0.0.1:9200"},
+		Addresses: []string{"http://localhost:9200"},
 	})
 	if err != nil {
 		return nil, err
