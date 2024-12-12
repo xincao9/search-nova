@@ -22,7 +22,7 @@ var (
 func init() {
 	P = new()
 	go func() {
-		ticker := time.NewTicker(time.Second)
+		ticker := time.NewTicker(time.Minute)
 		for range ticker.C {
 			err := P.Refresh()
 			if err != nil {
@@ -80,6 +80,7 @@ func (ps *pageService) TextAnalysis(urlS string) error {
 	defer resp.Body.Close()
 	ct := resp.Header.Get("Content-Type")
 	if ct != "" && !strings.Contains(ct, "text/html") {
+		logger.L.Infof("url: %s content-type is %s\n", urlS, ct)
 		return nil
 	}
 	reader, err := charset.NewReader(resp.Body, ct)
@@ -120,6 +121,10 @@ func (ps *pageService) TextAnalysis(urlS string) error {
 	if p.Keywords == "" && p.Content != "" {
 		// TODO 提取关键词
 	}
+	err = ps.Save(p)
+	if err != nil {
+		return err
+	}
 	doc.Find("a").Each(func(index int, s *goquery.Selection) {
 		val, exists := s.Attr("href")
 		if !exists {
@@ -142,7 +147,7 @@ func (ps *pageService) TextAnalysis(urlS string) error {
 			return
 		}
 	})
-	return ps.Save(p)
+	return nil
 }
 
 func (ps *pageService) Save(p *page.Page) error {
