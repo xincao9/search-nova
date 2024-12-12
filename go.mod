@@ -4,6 +4,7 @@ go 1.22.0
 
 require (
 	github.com/PuerkitoBio/goquery v1.5.1
+	github.com/elastic/go-elasticsearch v0.0.0
 	github.com/gin-gonic/gin v1.10.0
 	github.com/go-sql-driver/mysql v1.8.1
 	github.com/google/uuid v1.6.0

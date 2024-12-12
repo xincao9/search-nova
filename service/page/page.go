@@ -2,8 +2,10 @@ package page
 
 import (
 	"bytes"
+	"encoding/json"
 	"errors"
 	"github.com/PuerkitoBio/goquery"
+	elasticsearch "github.com/elastic/go-elasticsearch"
 	"github.com/jinzhu/gorm"
 	"golang.org/x/net/html/charset"
 	"net/http"
@@ -19,8 +21,29 @@ var (
 	P *pageService
 )
 
+type pageService struct {
+	o  *gorm.DB
+	es *elasticsearch.Client
+}
+
+func new() (*pageService, error) {
+	ps := &pageService{o: db.O}
+	var err error
+	ps.es, err = elasticsearch.NewClient(elasticsearch.Config{
+		Addresses: []string{"127.0.0.1"},
+	})
+	if err != nil {
+		return nil, err
+	}
+	return ps, nil
+}
+
 func init() {
-	P = new()
+	var err error
+	P, err = new()
+	if err != nil {
+		logger.L.Fatalf("Fatal error page: %v\n", err)
+	}
 	go func() {
 		ticker := time.NewTicker(time.Minute)
 		for range ticker.C {
@@ -58,14 +81,6 @@ func (ps *pageService) Refresh() error {
 		}
 	}
 	return nil
-}
-
-type pageService struct {
-	o *gorm.DB
-}
-
-func new() *pageService {
-	return &pageService{o: db.O}
 }
 
 func (ps *pageService) TextAnalysis(urlS string) error {
@@ -122,6 +137,11 @@ func (ps *pageService) TextAnalysis(urlS string) error {
 		// TODO 提取关键词
 	}
 	err = ps.Save(p)
+	if err != nil {
+		return err
+	}
+	data, _ := json.Marshal(p)
+	_, err = ps.es.Index("search_nova", bytes.NewReader(data))
 	if err != nil {
 		return err
 	}
