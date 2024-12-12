@@ -30,7 +30,7 @@ func new() (*pageService, error) {
 	ps := &pageService{o: db.O}
 	var err error
 	ps.es, err = elasticsearch.NewClient(elasticsearch.Config{
-		Addresses: []string{"127.0.0.1"},
+		Addresses: []string{"http://127.0.0.1:9200"},
 	})
 	if err != nil {
 		return nil, err
@@ -84,6 +84,7 @@ func (ps *pageService) Refresh() error {
 }
 
 func (ps *pageService) TextAnalysis(urlS string) error {
+	urlS = strings.TrimSpace(urlS)
 	urlO, err := url.Parse(urlS)
 	if err != nil {
 		return err
