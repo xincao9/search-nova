@@ -12,7 +12,6 @@ require (
 	github.com/rs/cors/wrapper/gin v0.0.0-20240830163046-1084d89a1692
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/viper v1.19.0
-	github.com/yanyiwu/gojieba v1.4.4
 	github.com/zsais/go-gin-prometheus v0.1.0
 	golang.org/x/net v0.26.0
 )

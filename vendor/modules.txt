@@ -250,9 +250,6 @@ github.com/twitchyliquid64/golang-asm/unsafeheader
 # github.com/ugorji/go/codec v1.2.12
 ## explicit; go 1.11
 github.com/ugorji/go/codec
-# github.com/yanyiwu/gojieba v1.4.4
-## explicit; go 1.17
-github.com/yanyiwu/gojieba
 # github.com/zsais/go-gin-prometheus v0.1.0
 ## explicit
 github.com/zsais/go-gin-prometheus

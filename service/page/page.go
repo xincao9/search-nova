@@ -5,7 +5,6 @@ import (
 	"errors"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/jinzhu/gorm"
-	"github.com/yanyiwu/gojieba"
 	"golang.org/x/net/html/charset"
 	"net/http"
 	"search-nova/internal/db"
@@ -110,15 +109,7 @@ func (ps *pageService) TextAnalysis(url string) error {
 	})
 	p.Content = buf.String()
 	if p.Keywords == "" && p.Content != "" {
-		x := gojieba.NewJieba()
-		defer x.Free()
-		words := x.ExtractWithWeight(p.Content, 5)
-		var buf bytes.Buffer
-		for _, word := range words {
-			buf.WriteString(word.Word)
-			buf.WriteRune(',')
-		}
-		p.Keywords = buf.String()
+		// TODO 提取关键词
 	}
 	// TODO 向下遍历
 	return ps.Save(p)
