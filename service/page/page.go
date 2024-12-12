@@ -48,10 +48,9 @@ func (ps *pageService) Refresh() error {
 		if p == nil {
 			continue
 		}
-		// TODO 已经下载过的，不再下载
-		//if p.Title != "" {
-		//	continue
-		//}
+		if p.Title != "" {
+			continue
+		}
 		err = P.TextAnalysis(p.Url)
 		if err != nil {
 			logger.L.Errorf("page.TextAnalysis(%s) err %v\n", p.Url, err)
@@ -80,7 +79,7 @@ func (ps *pageService) TextAnalysis(urlS string) error {
 	}
 	defer resp.Body.Close()
 	ct := resp.Header.Get("Content-Type")
-	if ct != "" && strings.Contains(ct, "text/html") {
+	if ct != "" && !strings.Contains(ct, "text/html") {
 		return nil
 	}
 	reader, err := charset.NewReader(resp.Body, ct)
@@ -151,7 +150,9 @@ func (ps *pageService) Save(p *page.Page) error {
 	if err != nil {
 		return err
 	}
-	p.Id = op.Id
+	if op != nil {
+		p.Id = op.Id
+	}
 	err = ps.o.Save(p).Error
 	return err
 }
