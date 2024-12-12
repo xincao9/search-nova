@@ -7,9 +7,11 @@ import (
 	"github.com/jinzhu/gorm"
 	"golang.org/x/net/html/charset"
 	"net/http"
+	"net/url"
 	"search-nova/internal/db"
 	"search-nova/internal/logger"
 	"search-nova/model/page"
+	"strings"
 	"time"
 )
 
@@ -67,18 +69,26 @@ func new() *pageService {
 	return &pageService{o: db.O}
 }
 
-func (ps *pageService) TextAnalysis(url string) error {
-	resp, err := http.Get(url)
+func (ps *pageService) TextAnalysis(urlS string) error {
+	urlO, err := url.Parse(urlS)
+	if err != nil {
+		return err
+	}
+	resp, err := http.Get(urlS)
 	if err != nil {
 		return err
 	}
 	defer resp.Body.Close()
-	reader, err := charset.NewReader(resp.Body, resp.Header.Get("Content-Type"))
+	ct := resp.Header.Get("Content-Type")
+	if ct != "" && strings.Contains(ct, "text/html") {
+		return nil
+	}
+	reader, err := charset.NewReader(resp.Body, ct)
 	if err != nil {
 		return err
 	}
 	p := &page.Page{
-		Url: url,
+		Url: urlS,
 	}
 	doc, err := goquery.NewDocumentFromReader(reader)
 	if err != nil {
@@ -111,7 +121,28 @@ func (ps *pageService) TextAnalysis(url string) error {
 	if p.Keywords == "" && p.Content != "" {
 		// TODO 提取关键词
 	}
-	// TODO 向下遍历
+	doc.Find("a").Each(func(index int, s *goquery.Selection) {
+		val, exists := s.Attr("href")
+		if !exists {
+			return
+		}
+		url1, err := url.Parse(val)
+		if err != nil {
+			logger.L.Errorf("url.Parse err: %v\n", err)
+			return
+		}
+		np := &page.Page{}
+		if url1.Scheme == "" {
+			np.Url = urlO.ResolveReference(url1).String()
+		} else {
+			np.Url = url1.String()
+		}
+		err = ps.Save(np)
+		if err != nil {
+			logger.L.Errorf("page.Save err: %v\n", err)
+			return
+		}
+	})
 	return ps.Save(p)
 }
 
