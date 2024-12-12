@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/PuerkitoBio/goquery"
-	elasticsearch "github.com/elastic/go-elasticsearch"
+	elasticsearch "github.com/elastic/go-elasticsearch/v8"
 	"github.com/jinzhu/gorm"
 	"golang.org/x/net/html/charset"
 	"net/http"
