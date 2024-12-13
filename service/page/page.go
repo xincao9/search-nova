@@ -151,8 +151,11 @@ func (ps *pageService) TextAnalysis(urlS string) error {
 	if err != nil {
 		return err
 	}
-	data, _ := json.Marshal(p)
-	_, err = ps.es.Index(ps.index, bytes.NewReader(data))
+	data, err := json.Marshal(p)
+	if err != nil {
+		return err
+	}
+	err = ps.IndexDoc(data)
 	if err != nil {
 		return err
 	}
@@ -178,6 +181,17 @@ func (ps *pageService) TextAnalysis(urlS string) error {
 			return
 		}
 	})
+	return nil
+}
+
+func (ps *pageService) IndexDoc(data []byte) error {
+	resp, err := ps.es.Index(ps.index, bytes.NewReader(data))
+	if resp != nil {
+		logger.L.Infof("es.Index %v\n", resp)
+	}
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
