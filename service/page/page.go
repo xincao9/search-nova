@@ -31,14 +31,15 @@ var (
 )
 
 type pageService struct {
-	o       *gorm.DB
+	db      *gorm.DB
 	es      *elasticsearch.Client
 	index   string
 	running atomic.Bool
+	pool    *ants.Pool
 }
 
 func new() (*pageService, error) {
-	ps := &pageService{o: db.O}
+	ps := &pageService{db: db.O}
 	var err error
 	ps.es, err = elasticsearch.NewClient(elasticsearch.Config{
 		Addresses: config.C.GetStringSlice(constant.ElasticsearchAddresses),
@@ -56,6 +57,10 @@ func new() (*pageService, error) {
 		return nil, err
 	}
 	ps.index = config.C.GetString(constant.ElasticsearchIndex)
+	ps.pool, err = ants.NewPool(4)
+	if err != nil {
+		return nil, err
+	}
 	return ps, nil
 }
 
@@ -102,7 +107,7 @@ func (ps *pageService) Refresh() error {
 			continue
 		}
 		wg.Add(1)
-		err = ants.Submit(func() {
+		err = ps.pool.Submit(func() {
 			defer wg.Done()
 			err = P.TextAnalysis(p.Url)
 			if err == nil {
@@ -183,8 +188,10 @@ func (ps *pageService) TextAnalysis(urlS string) error {
 		np := &page.Page{}
 		if url1.Scheme == "" {
 			np.Url = urlO.ResolveReference(url1).String()
-		} else {
+		} else if url1.Scheme == "http" || url1.Scheme == "https" {
 			np.Url = url1.String()
+		} else {
+			return
 		}
 		np.Status = constant.NewStatus
 		err = ps.Save(np)
@@ -250,13 +257,13 @@ func (ps *pageService) Save(p *page.Page) error {
 	if op != nil {
 		p.Id = op.Id
 	}
-	err = ps.o.Save(p).Error
+	err = ps.db.Save(p).Error
 	return err
 }
 
 func (ps *pageService) GetPageByUrl(url string) (*page.Page, error) {
 	p := &page.Page{}
-	err := ps.o.Where("`url`=?", url).First(p).Error
+	err := ps.db.Where("`url`=?", url).First(p).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, nil
 	}
@@ -268,7 +275,7 @@ func (ps *pageService) GetPageByUrl(url string) (*page.Page, error) {
 
 func (ps *pageService) GetPageById(id int64) (*page.Page, error) {
 	p := &page.Page{}
-	err := ps.o.Where("`id`=?", id).First(p).Error
+	err := ps.db.Where("`id`=?", id).First(p).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, nil
 	}
@@ -280,7 +287,7 @@ func (ps *pageService) GetPageById(id int64) (*page.Page, error) {
 
 func (ps *pageService) MaxId() (int64, error) {
 	p := &page.Page{}
-	err := ps.o.Order("`id` desc").First(p).Error
+	err := ps.db.Order("`id` desc").First(p).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return 0, nil
 	}
