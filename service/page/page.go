@@ -15,6 +15,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"regexp"
 	"search-nova/internal/config"
 	"search-nova/internal/constant"
 	"search-nova/internal/db"
@@ -158,7 +159,7 @@ func (ps *pageService) TextAnalysis(urlS string) error {
 			p.Keywords = item.AttrOr("content", "")
 		}
 	})
-	p.Content = doc.Text()
+	p.Content = ps.extractText(doc)
 	if p.Keywords == "" && p.Content != "" {
 		// TODO 提取关键词
 	}
@@ -171,7 +172,7 @@ func (ps *pageService) TextAnalysis(urlS string) error {
 	if err != nil {
 		return err
 	}
-	err = ps.IndexDoc(data)
+	err = ps.indexDoc(data)
 	if err != nil {
 		return err
 	}
@@ -238,7 +239,26 @@ func (ps *pageService) httpGet(urlS string) (io.Reader, error) {
 	return reader, nil
 }
 
-func (ps *pageService) IndexDoc(data []byte) error {
+func (ps *pageService) extractText(doc *goquery.Document) string {
+	var builder strings.Builder
+	chinesePattern := regexp.MustCompile(`\p{Han}+`)
+	englishPattern := regexp.MustCompile(`\b[a-zA-Z]+\b`)
+	doc.Find("*").Each(func(index int, s *goquery.Selection) {
+		text := s.Text()
+		chineseMatches := chinesePattern.FindAllString(text, -1)
+		for _, match := range chineseMatches {
+			builder.WriteString(match)
+		}
+		englishMatches := englishPattern.FindAllString(text, -1)
+		for _, match := range englishMatches {
+			builder.WriteString(match)
+			builder.WriteRune(' ')
+		}
+	})
+	return builder.String()
+}
+
+func (ps *pageService) indexDoc(data []byte) error {
 	resp, err := ps.es.Index(ps.index, bytes.NewReader(data))
 	if resp != nil {
 		logger.L.Infof("es.Index(%s) %v\n", data, resp)
