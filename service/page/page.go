@@ -137,14 +137,7 @@ func (ps *pageService) TextAnalysis(urlS string) error {
 			p.Keywords = item.AttrOr("content", "")
 		}
 	})
-	var buf bytes.Buffer
-	doc.Find("*").Each(func(i int, s *goquery.Selection) {
-		text := s.Text()
-		for _, r := range text {
-			buf.WriteRune(r)
-		}
-	})
-	p.Content = buf.String()
+	p.Content = doc.Text()
 	if p.Keywords == "" && p.Content != "" {
 		// TODO 提取关键词
 	}
