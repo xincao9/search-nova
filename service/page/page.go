@@ -48,6 +48,7 @@ func new() (*pageService, error) {
 	if err != nil {
 		return nil, err
 	}
+	ps.index = config.C.GetString(constant.ElasticsearchIndex)
 	return ps, nil
 }
 
