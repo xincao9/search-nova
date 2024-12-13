@@ -142,8 +142,8 @@ func (ps *pageService) TextAnalysis(urlS string) error {
 			buf.WriteRune(r)
 		}
 	})
-	content := buf.String()
-	if p.Keywords == "" && content != "" {
+	p.Content = buf.String()
+	if p.Keywords == "" && p.Content != "" {
 		// TODO 提取关键词
 	}
 	err = ps.Save(p)
