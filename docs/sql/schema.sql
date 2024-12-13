@@ -27,7 +27,7 @@ CREATE TABLE `page`
     `title`      varchar(512) NOT NULL DEFAULT '',
     `describe`   varchar(512) NOT NULL DEFAULT '',
     `keywords`   varchar(255) NOT NULL DEFAULT '',
-    `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `created_at` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     `deleted_at` timestamp NULL DEFAULT NULL,
     `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`)
