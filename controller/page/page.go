@@ -15,7 +15,7 @@ func Route(engine *gin.Engine) {
 			util.RenderJSON(c, http.StatusBadRequest, "")
 			return
 		}
-		r, err := page.P.Query(text)
+		r, err := page.P.Match(text)
 		if err != nil {
 			util.RenderJSON(c, http.StatusInternalServerError, err.Error())
 			return

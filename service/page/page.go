@@ -285,12 +285,12 @@ func (ps *pageService) Save(p *page.Page) error {
 	return err
 }
 
-func (ps *pageService) Query(text string) (string, error) {
+func (ps *pageService) Match(text string) (map[string]interface{}, error) {
 	var sr page.SearchRequest
 	sr.Query.Match.Content = text
 	body, err := json.Marshal(sr)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	req := esapi.SearchRequest{
 		Index: []string{ps.index},
@@ -298,13 +298,19 @@ func (ps *pageService) Query(text string) (string, error) {
 	}
 	resp, err := req.Do(context.Background(), ps.es)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	defer resp.Body.Close()
 	if resp.IsError() {
-		return "", errors.New(resp.String())
+		return nil, errors.New(resp.String())
 	}
-	return resp.String(), nil
+	defer resp.Body.Close()
+	m := make(map[string]interface{})
+	err = json.NewDecoder(resp.Body).Decode(&m)
+	if err != nil {
+		return nil, err
+	}
+	return m, nil
 }
 
 func (ps *pageService) GetPageByUrl(url string) (*page.Page, error) {
