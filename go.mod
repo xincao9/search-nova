@@ -10,6 +10,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/jinzhu/gorm v1.9.16
 	github.com/natefinch/lumberjack v2.0.0+incompatible
+	github.com/panjf2000/ants/v2 v2.10.0
 	github.com/playwright-community/playwright-go v0.4901.0
 	github.com/rs/cors/wrapper/gin v0.0.0-20240830163046-1084d89a1692
 	github.com/sirupsen/logrus v1.9.3
@@ -76,6 +77,7 @@ require (
 	golang.org/x/arch v0.8.0 // indirect
 	golang.org/x/crypto v0.24.0 // indirect
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9 // indirect
+	golang.org/x/sync v0.7.0 // indirect
 	golang.org/x/sys v0.22.0 // indirect
 	golang.org/x/text v0.16.0 // indirect
 	google.golang.org/protobuf v1.34.2 // indirect

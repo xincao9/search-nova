@@ -25,3 +25,9 @@ const (
 	StatusForbid      = 1 // 被封禁状态
 	StatusRead        = 2 // 已读状态
 )
+
+const (
+	NewStatus     = 0
+	SuccessStatus = 1
+	FailureStatus = 2
+)

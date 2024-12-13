@@ -11,4 +11,5 @@ type Page struct {
 	Describe string `json:"describe" gorm:"column:describe" goquery:"h1"`
 	Keywords string `json:"keywords" gorm:"column:keywords"`
 	Content  string `json:"content" gorm:"-"`
+	Status   int    `json:"status" gorm:"column:status"`
 }

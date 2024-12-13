@@ -5,9 +5,11 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/PuerkitoBio/goquery"
 	elasticsearch "github.com/elastic/go-elasticsearch/v8"
 	"github.com/jinzhu/gorm"
+	"github.com/panjf2000/ants/v2"
 	"github.com/playwright-community/playwright-go"
 	"golang.org/x/net/html/charset"
 	"io"
@@ -19,6 +21,8 @@ import (
 	"search-nova/internal/logger"
 	"search-nova/model/page"
 	"strings"
+	"sync"
+	"sync/atomic"
 	"time"
 )
 
@@ -27,9 +31,10 @@ var (
 )
 
 type pageService struct {
-	o     *gorm.DB
-	es    *elasticsearch.Client
-	index string
+	o       *gorm.DB
+	es      *elasticsearch.Client
+	index   string
+	running atomic.Bool
 }
 
 func new() (*pageService, error) {
@@ -72,11 +77,17 @@ func init() {
 }
 
 func (ps *pageService) Refresh() error {
+	if ps.running.Load() {
+		return fmt.Errorf("page.Refresh running")
+	}
+	ps.running.Store(true)
+	defer ps.running.Store(false)
 	maxId, err := ps.MaxId()
 	if err != nil {
 		return err
 	}
 	var id int64 = 1
+	var wg sync.WaitGroup
 	for ; id <= maxId; id++ {
 		logger.L.Infof("page.Refresh: %d/%d\n", id, maxId)
 		p, err := P.GetPageById(id)
@@ -87,15 +98,25 @@ func (ps *pageService) Refresh() error {
 		if p == nil {
 			continue
 		}
-		if p.Title != "" {
+		if p.Status != constant.NewStatus {
 			continue
 		}
-		err = P.TextAnalysis(p.Url)
-		if err != nil {
+		wg.Add(1)
+		err = ants.Submit(func() {
+			defer wg.Done()
+			err = P.TextAnalysis(p.Url)
+			if err == nil {
+				return
+			}
 			logger.L.Errorf("page.TextAnalysis(%s) err %v\n", p.Url, err)
-			continue
-		}
+			p.Status = constant.FailureStatus
+			err = ps.Save(p)
+			if err != nil {
+				logger.L.Errorf("page.Save(%v) err %v\n", p, err)
+			}
+		})
 	}
+	wg.Wait()
 	return nil
 }
 
@@ -136,6 +157,7 @@ func (ps *pageService) TextAnalysis(urlS string) error {
 	if p.Keywords == "" && p.Content != "" {
 		// TODO 提取关键词
 	}
+	p.Status = constant.SuccessStatus
 	err = ps.Save(p)
 	if err != nil {
 		return err
@@ -164,6 +186,7 @@ func (ps *pageService) TextAnalysis(urlS string) error {
 		} else {
 			np.Url = url1.String()
 		}
+		np.Status = constant.NewStatus
 		err = ps.Save(np)
 		if err != nil {
 			logger.L.Errorf("page.Save err: %v\n", err)
@@ -198,6 +221,9 @@ func (ps *pageService) httpGet(urlS string) (io.Reader, error) {
 		return nil, nil
 	}
 	body, err := resp.Body()
+	if err != nil {
+		return nil, err
+	}
 	reader, err := charset.NewReader(bytes.NewReader(body), ct)
 	if err != nil {
 		return nil, err
