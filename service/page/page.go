@@ -2,11 +2,13 @@ package page
 
 import (
 	"bytes"
+	"context"
 	"crypto/tls"
 	"encoding/json"
 	"errors"
 	"github.com/PuerkitoBio/goquery"
 	elasticsearch "github.com/elastic/go-elasticsearch/v8"
+	"github.com/elastic/go-elasticsearch/v8/esapi"
 	"github.com/jinzhu/gorm"
 	"github.com/panjf2000/ants/v2"
 	"github.com/playwright-community/playwright-go"
@@ -262,7 +264,7 @@ func (ps *pageService) extractText(doc *goquery.Document) string {
 
 func (ps *pageService) indexDoc(data []byte) error {
 	resp, err := ps.es.Index(ps.index, bytes.NewReader(data))
-	if resp != nil {
+	if resp != nil && resp.StatusCode != http.StatusOK {
 		logger.L.Infof("es.Index(%s) %v\n", data, resp)
 	}
 	if err != nil {
@@ -281,6 +283,28 @@ func (ps *pageService) Save(p *page.Page) error {
 	}
 	err = ps.db.Save(p).Error
 	return err
+}
+
+func (ps *pageService) Query(text string) (string, error) {
+	var sr page.SearchRequest
+	sr.Query.Match.Content = text
+	body, err := json.Marshal(sr)
+	if err != nil {
+		return "", err
+	}
+	req := esapi.SearchRequest{
+		Index: []string{ps.index},
+		Body:  bytes.NewReader(body),
+	}
+	resp, err := req.Do(context.Background(), ps.es)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+	if resp.IsError() {
+		return "", errors.New(resp.String())
+	}
+	return resp.String(), nil
 }
 
 func (ps *pageService) GetPageByUrl(url string) (*page.Page, error) {

@@ -7,6 +7,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"net/http"
 	"path/filepath"
+	"search-nova/controller/page"
 	"search-nova/controller/user"
 	"search-nova/internal/authentication"
 	"search-nova/internal/config"
@@ -40,6 +41,7 @@ func main() {
 	// 不需要认证的路由
 	user.Route(engine)
 	routeStatic(engine)
+	page.Route(engine)
 	// 需要认证的路由
 	authorized := engine.Group("/", authentication.Authentication)
 	user.AuthenticationRoute(authorized)

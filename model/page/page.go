@@ -13,3 +13,15 @@ type Page struct {
 	Content  string `json:"content" gorm:"-"`
 	Status   int    `json:"status" gorm:"column:status"`
 }
+
+type Match struct {
+	Content string `json:"content"`
+}
+
+type Query struct {
+	Match Match `json:"match"`
+}
+
+type SearchRequest struct {
+	Query Query `json:"query"`
+}
