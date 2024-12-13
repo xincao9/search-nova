@@ -187,7 +187,7 @@ func (ps *pageService) TextAnalysis(urlS string) error {
 func (ps *pageService) IndexDoc(data []byte) error {
 	resp, err := ps.es.Index(ps.index, bytes.NewReader(data))
 	if resp != nil {
-		logger.L.Infof("es.Index %v\n", resp)
+		logger.L.Infof("es.Index(%s) %v\n", data, resp)
 	}
 	if err != nil {
 		return err
