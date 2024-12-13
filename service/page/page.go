@@ -8,7 +8,9 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	elasticsearch "github.com/elastic/go-elasticsearch/v8"
 	"github.com/jinzhu/gorm"
+	"github.com/playwright-community/playwright-go"
 	"golang.org/x/net/html/charset"
+	"io"
 	"net/http"
 	"net/url"
 	"search-nova/internal/config"
@@ -103,19 +105,12 @@ func (ps *pageService) TextAnalysis(urlS string) error {
 	if err != nil {
 		return err
 	}
-	resp, err := http.Get(urlS)
+	reader, err := ps.httpGet(urlS)
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
-	ct := resp.Header.Get("Content-Type")
-	if ct != "" && !strings.Contains(ct, "text/html") {
-		logger.L.Infof("url: %s content-type is %s\n", urlS, ct)
+	if reader == nil {
 		return nil
-	}
-	reader, err := charset.NewReader(resp.Body, ct)
-	if err != nil {
-		return err
 	}
 	p := &page.Page{
 		Url: urlS,
@@ -176,6 +171,38 @@ func (ps *pageService) TextAnalysis(urlS string) error {
 		}
 	})
 	return nil
+}
+
+func (ps *pageService) httpGet(urlS string) (io.Reader, error) {
+	pw, err := playwright.Run()
+	if err != nil {
+		return nil, err
+	}
+	defer pw.Stop()
+	browser, err := pw.Chromium.Launch()
+	if err != nil {
+		return nil, err
+	}
+	defer browser.Close()
+	page, err := browser.NewPage()
+	if err != nil {
+		return nil, err
+	}
+	resp, err := page.Goto(urlS)
+	if err != nil {
+		return nil, err
+	}
+	ct := resp.Headers()["Content-Type"]
+	if ct != "" && !strings.Contains(ct, "text/html") {
+		logger.L.Infof("url: %s content-type is %s\n", urlS, ct)
+		return nil, nil
+	}
+	body, err := resp.Body()
+	reader, err := charset.NewReader(bytes.NewReader(body), ct)
+	if err != nil {
+		return nil, err
+	}
+	return reader, nil
 }
 
 func (ps *pageService) IndexDoc(data []byte) error {
