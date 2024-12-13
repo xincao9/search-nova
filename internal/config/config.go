@@ -63,6 +63,7 @@ func init() {
 	C.SetDefault(constant.ElasticsearchAddresses, []string{"https://127.0.0.1:9200"})
 	C.SetDefault(constant.ElasticsearchUsername, "elastic")
 	C.SetDefault(constant.ElasticsearchPassword, "")
+	C.SetDefault(constant.ElasticsearchIndex, "search_nova")
 	err := C.ReadInConfig()
 	if err != nil {
 		log.Fatalf("Fatal error conf : %v\n", err)

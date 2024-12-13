@@ -25,8 +25,9 @@ var (
 )
 
 type pageService struct {
-	o  *gorm.DB
-	es *elasticsearch.Client
+	o     *gorm.DB
+	es    *elasticsearch.Client
+	index string
 }
 
 func new() (*pageService, error) {
@@ -151,7 +152,7 @@ func (ps *pageService) TextAnalysis(urlS string) error {
 		return err
 	}
 	data, _ := json.Marshal(p)
-	_, err = ps.es.Index("search_nova", bytes.NewReader(data))
+	_, err = ps.es.Index(ps.index, bytes.NewReader(data))
 	if err != nil {
 		return err
 	}

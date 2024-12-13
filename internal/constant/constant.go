@@ -12,6 +12,7 @@ const (
 	ElasticsearchAddresses             = "elasticsearch.addresses"
 	ElasticsearchUsername              = "elasticsearch.username"
 	ElasticsearchPassword              = "elasticsearch.password"
+	ElasticsearchIndex                 = "elasticsearch.index"
 )
 
 const (
