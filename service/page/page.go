@@ -5,7 +5,6 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/PuerkitoBio/goquery"
 	elasticsearch "github.com/elastic/go-elasticsearch/v8"
 	"github.com/jinzhu/gorm"
@@ -58,6 +57,7 @@ func new() (*pageService, error) {
 		return nil, err
 	}
 	ps.index = config.C.GetString(constant.ElasticsearchIndex)
+	ps.running.Store(false)
 	ps.pool, err = ants.NewPool(4)
 	if err != nil {
 		return nil, err
@@ -74,20 +74,22 @@ func init() {
 	go func() {
 		ticker := time.NewTicker(time.Minute)
 		for range ticker.C {
-			err := P.Refresh()
-			if err != nil {
-				logger.L.Errorf("page.Refresh err: %v\n", err)
+			if !P.running.CompareAndSwap(false, true) {
+				logger.L.Infoln("page.Refresh running")
+				continue
 			}
+			go func() {
+				defer P.running.Store(false)
+				err := P.Refresh()
+				if err != nil {
+					logger.L.Errorf("page.Refresh err: %v\n", err)
+				}
+			}()
 		}
 	}()
 }
 
 func (ps *pageService) Refresh() error {
-	if ps.running.Load() {
-		return fmt.Errorf("page.Refresh running")
-	}
-	ps.running.Store(true)
-	defer ps.running.Store(false)
 	maxId, err := ps.MaxId()
 	if err != nil {
 		return err
