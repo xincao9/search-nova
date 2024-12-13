@@ -1,8 +1,15 @@
 # search-nova
 
-## 文心一言
 
-### elasticsearch索引
+## Install the browsers and OS dependencies
+
+```bash
+go install github.com/playwright-community/playwright-go/cmd/playwright@latest
+playwright install --with-deps
+```
+
+
+## elasticsearch
 
 ```text
 PUT /search_nova
