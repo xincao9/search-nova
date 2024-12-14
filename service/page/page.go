@@ -115,7 +115,7 @@ func (ps *pageService) Refresh() error {
 		wg.Add(1)
 		err = ps.pool.Submit(func() {
 			defer wg.Done()
-			err = P.TextAnalysis(p.Url)
+			err = P.TextAnalysis(p)
 			if err == nil {
 				return
 			}
@@ -131,7 +131,8 @@ func (ps *pageService) Refresh() error {
 	return nil
 }
 
-func (ps *pageService) TextAnalysis(urlS string) error {
+func (ps *pageService) TextAnalysis(p *page.Page) error {
+	urlS := p.Url
 	urlS = strings.TrimSpace(urlS)
 	urlO, err := url.Parse(urlS)
 	if err != nil {
@@ -143,9 +144,6 @@ func (ps *pageService) TextAnalysis(urlS string) error {
 	}
 	if reader == nil {
 		return nil
-	}
-	p := &page.Page{
-		Url: urlS,
 	}
 	doc, err := goquery.NewDocumentFromReader(reader)
 	if err != nil {
@@ -284,6 +282,7 @@ func (ps *pageService) Save(p *page.Page) error {
 		p.Id = op.Id
 	}
 	err = ps.db.Save(p).Error
+	logger.L.Infof("page.Save(%v) err: %v\n", p, err)
 	return err
 }
 
