@@ -279,6 +279,10 @@ func (ps *pageService) Save(p *page.Page) error {
 		return err
 	}
 	if op != nil {
+		if op.Status != constant.NewStatus {
+			// 老数据非新建的状态，不能再更改
+			return nil
+		}
 		p.Id = op.Id
 	}
 	err = ps.db.Save(p).Error
