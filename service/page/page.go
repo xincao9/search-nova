@@ -286,7 +286,6 @@ func (ps *pageService) Save(p *page.Page) error {
 		p.Id = op.Id
 	}
 	err = ps.db.Save(p).Error
-	logger.L.Infof("page.Save(%v) err: %v\n", p, err)
 	return err
 }
 
