@@ -21,6 +21,7 @@ import (
 	"search-nova/internal/constant"
 	"search-nova/internal/db"
 	"search-nova/internal/logger"
+	"search-nova/internal/util"
 	"search-nova/model/page"
 	"strings"
 	"sync"
@@ -199,6 +200,7 @@ func (ps *pageService) TextAnalysis(urlS string) error {
 			return
 		}
 		np.Status = constant.NewStatus
+		np.Md5 = util.Md5([]byte(np.Url))
 		err = ps.Save(np)
 		if err != nil {
 			logger.L.Errorf("page.Save err: %v\n", err)
@@ -327,8 +329,9 @@ func (ps *pageService) Match(text string) ([]*page.Page, error) {
 }
 
 func (ps *pageService) GetPageByUrl(url string) (*page.Page, error) {
+	md5 := util.Md5([]byte(url))
 	p := &page.Page{}
-	err := ps.db.Where("`url`=?", url).First(p).Error
+	err := ps.db.Where("`md5`=?", md5).First(p).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, nil
 	}

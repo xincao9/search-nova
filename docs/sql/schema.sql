@@ -20,14 +20,15 @@ CREATE TABLE `user`
 CREATE TABLE `page`
 (
     `id`         bigint(11) unsigned NOT NULL AUTO_INCREMENT,
-    `url`        varchar(512) NOT NULL DEFAULT '',
-    `title`      varchar(512) NOT NULL DEFAULT '',
-    `describe`   varchar(512) NOT NULL DEFAULT '',
-    `keywords`   varchar(255) NOT NULL DEFAULT '',
-    `status` int(11) NOT NULL DEFAULT 0,
+    `md5`      char(32) NOT NULL DEFAULT '',
+    `url`      text,
+    `title`    text,
+    `describe` text,
+    `keywords` text,
+    `status`   int(11) NOT NULL DEFAULT 0,
     `created_at` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     `deleted_at` timestamp NULL DEFAULT NULL,
     `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
-    UNIQUE KEY `url_idx` (`url`)
+    UNIQUE KEY `md5_idx` (`md5`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;

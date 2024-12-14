@@ -19,7 +19,7 @@ PUT /search_nova
       "id": {
         "type": "long"
       },
-      "url": {
+      "md5": {
         "type": "keyword"
       },
       "content": {
@@ -29,5 +29,6 @@ PUT /search_nova
     }
   }
 }
+
 
 ```

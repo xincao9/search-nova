@@ -6,6 +6,7 @@ import (
 
 type Page struct {
 	db.Model
+	Md5      string `json:"md5" gorm:"md5"`
 	Url      string `json:"url" gorm:"column:url"`
 	Title    string `json:"title" gorm:"column:title" goquery:"title"`
 	Describe string `json:"describe" gorm:"column:describe" goquery:"h1"`
@@ -14,16 +15,12 @@ type Page struct {
 	Status   int    `json:"status" gorm:"column:status"`
 }
 
-type Match struct {
-	Content string `json:"content"`
-}
-
-type Query struct {
-	Match Match `json:"match"`
-}
-
 type SearchRequest struct {
-	Query Query `json:"query"`
+	Query struct {
+		Match struct {
+			Content string `json:"content"`
+		} `json:"match"`
+	} `json:"query"`
 }
 
 type SearchResponse struct {
@@ -31,7 +28,7 @@ type SearchResponse struct {
 		Hits []struct {
 			Source struct {
 				Id int64 `json:"id"`
-			} `json:_source`
+			} `json:"_source"`
 		} `json:"hits"`
 	} `json:"hits"`
 }

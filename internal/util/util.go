@@ -1,6 +1,8 @@
 package util
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -38,4 +40,11 @@ func HasElem(s interface{}, elem interface{}) bool {
 		}
 	}
 	return false
+}
+
+func Md5(b []byte) string {
+	m := md5.New()
+	m.Write(b)
+	hb := m.Sum(nil)
+	return hex.EncodeToString(hb)
 }
