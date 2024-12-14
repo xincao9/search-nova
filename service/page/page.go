@@ -264,11 +264,11 @@ func (ps *pageService) extractText(doc *goquery.Document) string {
 
 func (ps *pageService) indexDoc(data []byte) error {
 	resp, err := ps.es.Index(ps.index, bytes.NewReader(data))
-	if resp != nil && resp.StatusCode != http.StatusOK {
-		logger.L.Infof("es.Index(%s) %v\n", data, resp)
-	}
 	if err != nil {
 		return err
+	}
+	if resp.IsError() {
+		return errors.New(resp.String())
 	}
 	return nil
 }
@@ -285,7 +285,7 @@ func (ps *pageService) Save(p *page.Page) error {
 	return err
 }
 
-func (ps *pageService) Match(text string) (map[string]interface{}, error) {
+func (ps *pageService) Match(text string) ([]*page.Page, error) {
 	var sr page.SearchRequest
 	sr.Query.Match.Content = text
 	body, err := json.Marshal(sr)
@@ -300,17 +300,30 @@ func (ps *pageService) Match(text string) (map[string]interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
 	if resp.IsError() {
 		return nil, errors.New(resp.String())
 	}
 	defer resp.Body.Close()
-	m := make(map[string]interface{})
-	err = json.NewDecoder(resp.Body).Decode(&m)
+	var searchResponse page.SearchResponse
+	err = json.NewDecoder(resp.Body).Decode(&searchResponse)
 	if err != nil {
 		return nil, err
 	}
-	return m, nil
+	var pages []*page.Page
+	for _, hit := range searchResponse.Hits.Hits {
+		if hit.Source.Id <= 0 {
+			continue
+		}
+		p, err := ps.GetPageById(hit.Source.Id)
+		if err != nil {
+			continue
+		}
+		if p == nil {
+			continue
+		}
+		pages = append(pages, p)
+	}
+	return pages, nil
 }
 
 func (ps *pageService) GetPageByUrl(url string) (*page.Page, error) {
