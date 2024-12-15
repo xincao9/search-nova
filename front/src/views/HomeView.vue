@@ -1,6 +1,6 @@
 <script>
 import {Search} from '@element-plus/icons-vue'
-import Logo from '@/assets/img/logo_big.png'
+import Logo from '@/assets/logo.svg'
 import { ref } from 'vue'
 import { useVuelidate } from '@vuelidate/core'
 import { required } from '@vuelidate/validators'
@@ -39,9 +39,7 @@ export default {
     </el-header>
     <el-main>
       <el-row justify="center">
-        <el-col :span="4">
-          <el-image :src="Logo"/>
-        </el-col>
+        <el-image :src="Logo"/>
       </el-row>
       <el-row justify="center">
         <div style="margin-top: 80px">
