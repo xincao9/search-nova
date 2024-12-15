@@ -1,33 +1,22 @@
 <script>
 import {Search} from '@element-plus/icons-vue'
 import Logo from '@/assets/logo.svg'
-import { ref } from 'vue'
-import { useVuelidate } from '@vuelidate/core'
-import { required } from '@vuelidate/validators'
+import {ref} from 'vue'
+import {useRouter} from 'vue-router';
 
 export default {
-  name: "SearchView",
-  computed: {
-    Logo() {
-      return Logo
-    },
-    Search() {
-      return Search
-    }
-  },
+  name: "HomeView",
   setup() {
     const answer = ref('')
-
-    const rules = {
-      answer: { required }
+    const router = useRouter();
+    const handleSearch = function () {
+      router.push({name: 'search', query: {answer: answer.value}});
     }
-
-    const { errors, handleSearch } = useVuelidate(rules, { answer })
-
     return {
       answer,
-      errors,
-      handleSearch
+      handleSearch,
+      Logo,
+      Search
     }
   }
 }
@@ -43,7 +32,7 @@ export default {
       </el-row>
       <el-row justify="center">
         <div style="margin-top: 80px">
-          <el-input id="answer" name="answer" type="text" style="width: 480px; height: 40px;"  v-model="answer"/>
+          <el-input id="answer" name="answer" type="text" style="width: 480px; height: 40px;" v-model="answer"/>
         </div>
       </el-row>
       <el-row justify="center">
