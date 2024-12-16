@@ -15,6 +15,7 @@ import (
 	"search-nova/internal/logger"
 	_ "search-nova/internal/manager"
 	"search-nova/internal/metrics"
+	"search-nova/internal/shutdown"
 	_ "search-nova/service/page"
 )
 
@@ -53,6 +54,7 @@ func main() {
 	if err := engine.Run(addr); err != nil {
 		logger.L.Fatalf("Fatal error search-nova: %v\n", err)
 	}
+	shutdown.S.Await()
 }
 
 func routeStatic(engine *gin.Engine) {

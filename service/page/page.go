@@ -21,6 +21,7 @@ import (
 	"search-nova/internal/constant"
 	"search-nova/internal/db"
 	"search-nova/internal/logger"
+	"search-nova/internal/shutdown"
 	"search-nova/internal/util"
 	"search-nova/model/page"
 	"strings"
@@ -39,6 +40,8 @@ type pageService struct {
 	index   string
 	running atomic.Bool
 	pool    *ants.Pool
+	pw      *playwright.Playwright
+	browser playwright.Browser
 }
 
 func new() (*pageService, error) {
@@ -65,6 +68,24 @@ func new() (*pageService, error) {
 	if err != nil {
 		return nil, err
 	}
+	ps.pw, err = playwright.Run()
+	if err != nil {
+		return nil, err
+	}
+	ps.browser, err = ps.pw.Chromium.Launch()
+	if err != nil {
+		return nil, err
+	}
+	shutdown.S.Add(func() {
+		err = ps.browser.Close()
+		if err != nil {
+			logger.L.Errorf("browser.Close() err %v\n", err)
+		}
+		err = ps.pw.Stop()
+		if err != nil {
+			logger.L.Errorf("playwright.Close() err %v\n", err)
+		}
+	})
 	return ps, nil
 }
 
@@ -209,21 +230,12 @@ func (ps *pageService) TextAnalysis(p *page.Page) error {
 }
 
 func (ps *pageService) httpGet(urlS string) (io.Reader, error) {
-	pw, err := playwright.Run()
+	newPage, err := ps.browser.NewPage()
 	if err != nil {
 		return nil, err
 	}
-	defer pw.Stop()
-	browser, err := pw.Chromium.Launch()
-	if err != nil {
-		return nil, err
-	}
-	defer browser.Close()
-	page, err := browser.NewPage()
-	if err != nil {
-		return nil, err
-	}
-	resp, err := page.Goto(urlS)
+	defer newPage.Close()
+	resp, err := newPage.Goto(urlS)
 	if err != nil {
 		return nil, err
 	}
@@ -236,7 +248,9 @@ func (ps *pageService) httpGet(urlS string) (io.Reader, error) {
 	if err != nil {
 		return nil, err
 	}
-	reader, err := charset.NewReader(bytes.NewReader(body), ct)
+	var b bytes.Buffer
+	b.Write(body)
+	reader, err := charset.NewReader(&b, ct)
 	if err != nil {
 		return nil, err
 	}
