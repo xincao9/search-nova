@@ -59,7 +59,7 @@ export default {
     <el-main style="margin-top:50px; margin-left: 20px">
       <div v-for="page in pages">
         <el-row style="margin-top: 15px">
-          <el-link href="{{ page.url }}" target="_blank">
+          <el-link :href="page.url" target="_blank">
             <el-text size="large">{{ page.title }}</el-text>
           </el-link>
         </el-row>
