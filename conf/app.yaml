@@ -8,7 +8,7 @@ manager:
     port: 8090
 server:
   cors:
-    access-control-allow-origin: http://localhost:8081
+    access-control-allow-origin: http://localhost:5173
   mode: release
   port: 8080
 assets:
