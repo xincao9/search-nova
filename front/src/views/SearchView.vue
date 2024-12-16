@@ -1,50 +1,55 @@
 <script>
-import Logo from "@/assets/logo.svg";
-import {useRoute} from 'vue-router';
+import {useRoute, useRouter} from 'vue-router';
 import axios from 'axios';
-import {ref, onMounted} from "vue";
-
+import {onMounted, ref, watch} from 'vue';
 
 export default {
   name: "SearchView",
   setup() {
     const route = useRoute();
-    const answer = route.query.answer;
-    // const pages = [
-    //   {
-    //     "title": "澳门“一国两制”成功实践获得4点重要经验",
-    //     "describe": "在热烈的掌声中，习近平发表了重要讲话。习近平指出，澳门地方虽小，但在“一国两制”实践中作用独特。总结澳门“一国两制”成功实践，可以获得以下4点重要经验",
-    //     "url": "https://element-plus.org",
-    //   },
-    //   {
-    //     "title": "澳门“一国两制”成功实践获得4点重要经验",
-    //     "describe": "在热烈的掌声中，习近平发表了重要讲话。习近平指出，澳门地方虽小，但在“一国两制”实践中作用独特。总结澳门“一国两制”成功实践，可以获得以下4点重要经验",
-    //     "url": "https://element-plus.org",
-    //   }];
-    const pages = ref(null);
+    const router = useRouter();
+    const initialAnswer = route.query.answer || ''; // 提供默认值以防没有查询参数
+    const answer = ref(initialAnswer); // 使用ref来创建响应式数据
+    const pages = ref([]); // 初始化pages为数组
+    const loading = ref(true); // 添加加载状态
+    const error = ref(null); // 添加错误状态
+
     const fetchData = async () => {
       try {
-        const url = "http://localhost:8080/page?text=" + answer;
+        const url = `http://localhost:8080/page?text=${answer.value}`;
         const response = await axios.get(url);
-        const data = response.data;
-        pages.value = data.data;
+        pages.value = response.data.data; // 假设响应格式是 { data: [...] }
       } catch (err) {
-        console.log(err)
+        console.error(err);
+        error.value = '加载数据失败'; // 设置错误消息
       } finally {
+        loading.value = false; // 无论成功还是失败，都设置加载状态为false
       }
     };
 
     onMounted(fetchData);
-    return {Logo, answer, pages}
-  }
-}
+
+    // 监听answer的变化并重新获取数据（可选）
+    watch(answer, (newVal) => {
+      router.replace({query: {answer: newVal}}); // 更新URL查询参数
+      fetchData(); // 重新获取数据
+    });
+
+    return {
+      answer,
+      pages,
+      loading,
+      error,
+    };
+  },
+};
 </script>
 
 <template>
   <el-container>
     <el-header>
       <el-row style="margin-top:50px; margin-left: 20px">
-        <el-image :src="Logo" style="width: 40px; height: 40px;"/>
+        <img src="@/assets/logo.svg" style="width: 40px; height: 40px;"/>
         <el-input style="width: 480px; height: 40px; margin-left: 10px" v-model="answer"/>
       </el-row>
       <el-row>

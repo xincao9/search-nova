@@ -1,6 +1,5 @@
 <script>
 import {Search} from '@element-plus/icons-vue'
-import Logo from '@/assets/logo.svg'
 import {ref} from 'vue'
 import {useRouter} from 'vue-router';
 
@@ -15,7 +14,6 @@ export default {
     return {
       answer,
       handleSearch,
-      Logo,
       Search
     }
   }
@@ -28,7 +26,7 @@ export default {
     </el-header>
     <el-main>
       <el-row justify="center">
-        <el-image :src="Logo"/>
+        <img src="@/assets/logo.svg"/>
       </el-row>
       <el-row justify="center">
         <div style="margin-top: 80px">
