@@ -12,10 +12,15 @@ export default {
       router.push({name: 'search', query: {answer: answer.value}});
     };
 
+    const handleLucky = () => {
+      alert("暂时未上线，敬请期待！");
+    };
+
     return {
       answer,
       handleSearch,
-      Search
+      Search,
+      handleLucky
     };
   }
 };
@@ -24,7 +29,7 @@ export default {
 <template>
   <el-container>
     <el-header></el-header>
-    <el-main>
+    <el-main style="margin-top: 200px">
       <el-row justify="center">
         <img src="@/assets/logo.svg"/>
       </el-row>
@@ -41,10 +46,12 @@ export default {
       </el-row>
       <el-row justify="center">
         <div style="margin-top: 30px">
-          <el-button :icon="Search" plain size="large" @click="handleSearch">
-            Good Search
+          <el-button :icon="Search" plain size="large" type="primary" @click="handleSearch">
+            <strong>Good Search</strong>
           </el-button>
-          <el-button plain size="large">I'm Feeling Lucky</el-button>
+          <el-button plain size="large" @click="handleLucky">
+            <strong>I'm Feeling Lucky</strong>
+          </el-button>
         </div>
       </el-row>
     </el-main>
