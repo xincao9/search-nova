@@ -56,12 +56,11 @@ func main() {
 }
 
 func routeStatic(engine *gin.Engine) {
-	ar := config.C.GetString(constant.AssetsRootDir)
-	engine.Static("/assets", ar)
-	engine.Static("/js", filepath.Join(ar, "js"))
-	engine.Static("/css", filepath.Join(ar, "css"))
-	engine.Static("/img", filepath.Join(ar, "img"))
+	pr := config.C.GetString(constant.PublicDir)
+	engine.Static("/public", pr)
+	engine.Static("/assets", filepath.Join(pr, "assets"))
+	engine.StaticFile("favicon.ico", pr)
 	engine.GET("/", func(c *gin.Context) {
-		c.Redirect(http.StatusFound, "/assets")
+		c.Redirect(http.StatusFound, "/public")
 	})
 }

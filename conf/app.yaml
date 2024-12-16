@@ -11,7 +11,7 @@ server:
     access-control-allow-origin: http://localhost:5173
   mode: release
   port: 8080
-assets:
-  root: ./assets
+public:
+  dir: ./front/dist
 elasticsearch:
   password: TCzhcDyUPVuwVPAcYJw=

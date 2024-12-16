@@ -59,7 +59,7 @@ func init() {
 	C.SetDefault(constant.ServerCorsAccessControlAllowOrigin, "http://localhost:8081")
 	C.SetDefault(constant.ManagerServerPort, 8090)
 	C.SetDefault(constant.DataSource, "root:asdf@tcp(localhost:3306)/search_nova?charset=utf8&parseTime=true&loc=Local")
-	C.SetDefault(constant.AssetsRootDir, "./assets")
+	C.SetDefault(constant.PublicDir, "./front/dist")
 	C.SetDefault(constant.ElasticsearchAddresses, []string{"https://127.0.0.1:9200"})
 	C.SetDefault(constant.ElasticsearchUsername, "elastic")
 	C.SetDefault(constant.ElasticsearchPassword, "")

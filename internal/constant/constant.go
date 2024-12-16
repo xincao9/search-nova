@@ -8,7 +8,7 @@ const (
 	ServerCorsAccessControlAllowOrigin = "server.cors.access-control-allow-origin"
 	ManagerServerPort                  = "manager.server.port"
 	DataSource                         = "db.dataSource"
-	AssetsRootDir                      = "assets.root"
+	PublicDir                          = "public.dir"
 	ElasticsearchAddresses             = "elasticsearch.addresses"
 	ElasticsearchUsername              = "elasticsearch.username"
 	ElasticsearchPassword              = "elasticsearch.password"
