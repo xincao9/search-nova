@@ -5,20 +5,16 @@ import (
 	"errors"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/jinzhu/gorm"
-	"github.com/panjf2000/ants/v2"
 	"net/url"
 	"regexp"
+	"search-nova/internal/chromium"
 	"search-nova/internal/constant"
 	"search-nova/internal/db"
+	"search-nova/internal/es"
 	"search-nova/internal/logger"
 	"search-nova/internal/util"
 	"search-nova/model/page"
-	"search-nova/service/chromium"
-	"search-nova/service/es"
 	"strings"
-	"sync"
-	"sync/atomic"
-	"time"
 )
 
 var (
@@ -26,20 +22,11 @@ var (
 )
 
 type pageService struct {
-	db      *gorm.DB
-	running atomic.Bool
-	pool    *ants.Pool
+	db *gorm.DB
 }
 
 func new() (*pageService, error) {
-	ps := &pageService{db: db.O}
-	var err error
-	ps.running.Store(false)
-	ps.pool, err = ants.NewPool(4)
-	if err != nil {
-		return nil, err
-	}
-	return ps, nil
+	return &pageService{db: db.O}, nil
 }
 
 func init() {
@@ -48,61 +35,6 @@ func init() {
 	if err != nil {
 		logger.L.Fatalf("Fatal error page: %v\n", err)
 	}
-	go func() {
-		ticker := time.NewTicker(time.Minute)
-		for range ticker.C {
-			if !P.running.CompareAndSwap(false, true) {
-				logger.L.Infoln("page.Refresh running")
-				continue
-			}
-			go func() {
-				defer P.running.Store(false)
-				err := P.Refresh()
-				if err != nil {
-					logger.L.Errorf("page.Refresh err: %v\n", err)
-				}
-			}()
-		}
-	}()
-}
-
-func (ps *pageService) Refresh() error {
-	maxId, err := ps.MaxId()
-	if err != nil {
-		return err
-	}
-	var id int64 = 1
-	var wg sync.WaitGroup
-	for ; id <= maxId; id++ {
-		logger.L.Infof("page.Refresh: %d/%d\n", id, maxId)
-		p, err := P.GetPageById(id)
-		if err != nil {
-			logger.L.Errorf("page.GetPageById(%d) err %v\n", id, err)
-			continue
-		}
-		if p == nil {
-			continue
-		}
-		if p.Status != constant.NewStatus {
-			continue
-		}
-		wg.Add(1)
-		err = ps.pool.Submit(func() {
-			defer wg.Done()
-			err = P.TextAnalysis(p)
-			if err == nil {
-				return
-			}
-			logger.L.Errorf("page.TextAnalysis(%s) err %v\n", p.Url, err)
-			p.Status = constant.FailureStatus
-			err = ps.Save(p)
-			if err != nil {
-				logger.L.Errorf("page.Save(%v) err %v\n", p, err)
-			}
-		})
-	}
-	wg.Wait()
-	return nil
 }
 
 func (ps *pageService) TextAnalysis(p *page.Page) error {

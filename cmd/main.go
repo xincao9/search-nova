@@ -16,7 +16,6 @@ import (
 	_ "search-nova/internal/manager"
 	"search-nova/internal/metrics"
 	"search-nova/internal/shutdown"
-	_ "search-nova/service/page"
 )
 
 func main() {
