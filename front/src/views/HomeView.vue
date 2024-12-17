@@ -37,10 +37,10 @@ export default {
         <div style="margin-top: 80px">
           <el-input
             id="answer"
-            name="answer"
-            type="text"
             v-model="answer"
+            name="answer"
             style="width: 500px; height: 50px; font-size: 20px"
+            type="text"
           />
         </div>
       </el-row>

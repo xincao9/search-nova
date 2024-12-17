@@ -21,7 +21,9 @@
 
 from flask import request, jsonify
 from snownlp import SnowNLP
+
 from . import bp
+
 
 @bp.route('/analysis', methods=['POST'])
 def analysis():
@@ -31,8 +33,8 @@ def analysis():
             return jsonify({}), 400
         text = data['text']
         s = SnowNLP(text)
-        keyword = s.keywords(3)
-        summary = s.summary(3)
-        return jsonify({"keyword": keyword, "summary": summary}, 200)
+        keyword = s.keywords(5)
+        summary = s.summary(5)
+        return jsonify({"keyword": keyword, "summary": summary}), 200
     except Exception as e:
         return jsonify({"error": e}), 500
