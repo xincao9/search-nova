@@ -54,7 +54,7 @@ export default {
     <el-main style="margin-top:50px; margin-left: 50px">
       <div v-for="page in pages">
         <el-row>
-          <a :href="page.url" style="margin-top: 15px" target="_blank">
+          <a :href="page.url" style="margin-top: 10px" target="_blank">
             <text v-if="page.keywords" style="font-size: 20px">{{ page.keywords }}</text>
             <text v-if="page.title" style="font-size: 20px">{{ page.title }}</text>
           </a>
@@ -63,9 +63,9 @@ export default {
           <text style="margin-top:10px; font-size: 16px">{{ page.describe }}</text>
         </el-row>
         <el-row>
-          <a href="page.url" style="margin-top:10px; font-size: 12px">{{ page.url }}</a>
+          <a :href="page.url" style="margin-top:10px; font-size: 12px" target="_blank">{{ page.url }}</a>
         </el-row>
-        <el-divider/>
+        <el-divider style="margin: 10px 0"/>
       </div>
     </el-main>
     <el-footer>
