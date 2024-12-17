@@ -18,7 +18,7 @@ func init() {
 
 func new() *shutdown {
 	return &shutdown{
-		done: make(chan bool, 1),
+		done: make(chan bool),
 	}
 }
 
@@ -28,7 +28,7 @@ type shutdown struct {
 }
 
 func (s *shutdown) Await() {
-	s.done <- true
+	<-s.done
 }
 
 func (s *shutdown) Add(f func()) {
@@ -47,6 +47,5 @@ func (s *shutdown) watch() {
 			f()
 		}
 		s.done <- true
-		os.Exit(0)
 	}()
 }
