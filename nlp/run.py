@@ -1,6 +1,5 @@
-from app import create_app
-
-app = create_app()
+from app import new_engine
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    engin = new_engine()
+    engin.run(debug=True)

@@ -1,4 +1,4 @@
-__pycache*
+npl/app/__pycache__
 nlp/venv
 # Logs
 logs
