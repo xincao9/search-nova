@@ -2,28 +2,23 @@ package page
 
 import (
 	"bytes"
-	"context"
-	"crypto/tls"
 	"encoding/json"
 	"errors"
 	"github.com/PuerkitoBio/goquery"
-	elasticsearch "github.com/elastic/go-elasticsearch/v8"
-	"github.com/elastic/go-elasticsearch/v8/esapi"
 	"github.com/jinzhu/gorm"
 	"github.com/panjf2000/ants/v2"
 	"github.com/playwright-community/playwright-go"
 	"golang.org/x/net/html/charset"
 	"io"
-	"net/http"
 	"net/url"
 	"regexp"
-	"search-nova/internal/config"
 	"search-nova/internal/constant"
 	"search-nova/internal/db"
 	"search-nova/internal/logger"
 	"search-nova/internal/shutdown"
 	"search-nova/internal/util"
 	"search-nova/model/page"
+	"search-nova/service/es"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -36,8 +31,6 @@ var (
 
 type pageService struct {
 	db      *gorm.DB
-	es      *elasticsearch.Client
-	index   string
 	running atomic.Bool
 	pool    *ants.Pool
 	pw      *playwright.Playwright
@@ -47,22 +40,6 @@ type pageService struct {
 func new() (*pageService, error) {
 	ps := &pageService{db: db.O}
 	var err error
-	ps.es, err = elasticsearch.NewClient(elasticsearch.Config{
-		Addresses: config.C.GetStringSlice(constant.ElasticsearchAddresses),
-		Username:  config.C.GetString(constant.ElasticsearchUsername),
-		Password:  config.C.GetString(constant.ElasticsearchPassword),
-		Transport: &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-		},
-	})
-	if err != nil {
-		return nil, err
-	}
-	_, err = ps.es.Ping()
-	if err != nil {
-		return nil, err
-	}
-	ps.index = config.C.GetString(constant.ElasticsearchIndex)
 	ps.running.Store(false)
 	ps.pool, err = ants.NewPool(4)
 	if err != nil {
@@ -196,7 +173,7 @@ func (ps *pageService) TextAnalysis(p *page.Page) error {
 	if err != nil {
 		return err
 	}
-	err = ps.indexDoc(data)
+	err = es.E.IndexDoc(data)
 	if err != nil {
 		return err
 	}
@@ -276,17 +253,6 @@ func (ps *pageService) extractText(doc *goquery.Document) string {
 	return builder.String()
 }
 
-func (ps *pageService) indexDoc(data []byte) error {
-	resp, err := ps.es.Index(ps.index, bytes.NewReader(data))
-	if err != nil {
-		return err
-	}
-	if resp.IsError() {
-		return errors.New(resp.String())
-	}
-	return nil
-}
-
 func (ps *pageService) Save(p *page.Page) error {
 	op, err := ps.GetPageByUrl(p.Url)
 	if err != nil {
@@ -310,20 +276,7 @@ func (ps *pageService) Match(text string) ([]*page.Page, error) {
 	if err != nil {
 		return nil, err
 	}
-	req := esapi.SearchRequest{
-		Index: []string{ps.index},
-		Body:  bytes.NewReader(body),
-	}
-	resp, err := req.Do(context.Background(), ps.es)
-	if err != nil {
-		return nil, err
-	}
-	if resp.IsError() {
-		return nil, errors.New(resp.String())
-	}
-	defer resp.Body.Close()
-	var searchResponse page.SearchResponse
-	err = json.NewDecoder(resp.Body).Decode(&searchResponse)
+	searchResponse, err := es.E.Search(body)
 	if err != nil {
 		return nil, err
 	}
