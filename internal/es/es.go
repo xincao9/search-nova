@@ -12,7 +12,6 @@ import (
 	"search-nova/internal/config"
 	"search-nova/internal/constant"
 	"search-nova/internal/logger"
-	mes "search-nova/model/es"
 )
 
 var (
@@ -65,7 +64,7 @@ func (e *es) IndexDoc(data []byte) error {
 	return nil
 }
 
-func (e *es) Search(body []byte) (*mes.SearchResponse, error) {
+func (e *es) Search(body []byte) (*SearchResponse, error) {
 	req := esapi.SearchRequest{
 		Index: []string{e.index},
 		Body:  bytes.NewReader(body),
@@ -78,10 +77,20 @@ func (e *es) Search(body []byte) (*mes.SearchResponse, error) {
 		return nil, errors.New(resp.String())
 	}
 	defer resp.Body.Close()
-	var searchResponse mes.SearchResponse
+	var searchResponse SearchResponse
 	err = json.NewDecoder(resp.Body).Decode(&searchResponse)
 	if err != nil {
 		return nil, err
 	}
 	return &searchResponse, err
+}
+
+type SearchResponse struct {
+	Hits struct {
+		Hits []struct {
+			Source struct {
+				Id int64 `json:"id"`
+			} `json:"_source"`
+		} `json:"hits"`
+	} `json:"hits"`
 }
