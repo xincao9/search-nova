@@ -1,23 +1,19 @@
 package page
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/jinzhu/gorm"
 	"github.com/panjf2000/ants/v2"
-	"github.com/playwright-community/playwright-go"
-	"golang.org/x/net/html/charset"
-	"io"
 	"net/url"
 	"regexp"
 	"search-nova/internal/constant"
 	"search-nova/internal/db"
 	"search-nova/internal/logger"
-	"search-nova/internal/shutdown"
 	"search-nova/internal/util"
 	"search-nova/model/page"
+	"search-nova/service/chromium"
 	"search-nova/service/es"
 	"strings"
 	"sync"
@@ -33,8 +29,6 @@ type pageService struct {
 	db      *gorm.DB
 	running atomic.Bool
 	pool    *ants.Pool
-	pw      *playwright.Playwright
-	browser playwright.Browser
 }
 
 func new() (*pageService, error) {
@@ -45,24 +39,6 @@ func new() (*pageService, error) {
 	if err != nil {
 		return nil, err
 	}
-	ps.pw, err = playwright.Run()
-	if err != nil {
-		return nil, err
-	}
-	ps.browser, err = ps.pw.Chromium.Launch()
-	if err != nil {
-		return nil, err
-	}
-	shutdown.S.Add(func() {
-		err = ps.browser.Close()
-		if err != nil {
-			logger.L.Errorf("browser.Close() err %v\n", err)
-		}
-		err = ps.pw.Stop()
-		if err != nil {
-			logger.L.Errorf("playwright.Close() err %v\n", err)
-		}
-	})
 	return ps, nil
 }
 
@@ -136,7 +112,7 @@ func (ps *pageService) TextAnalysis(p *page.Page) error {
 	if err != nil {
 		return err
 	}
-	reader, err := ps.httpGet(urlS)
+	reader, err := chromium.C.Html(urlS)
 	if err != nil {
 		return err
 	}
@@ -204,34 +180,6 @@ func (ps *pageService) TextAnalysis(p *page.Page) error {
 		}
 	})
 	return nil
-}
-
-func (ps *pageService) httpGet(urlS string) (io.Reader, error) {
-	newPage, err := ps.browser.NewPage()
-	if err != nil {
-		return nil, err
-	}
-	defer newPage.Close()
-	resp, err := newPage.Goto(urlS)
-	if err != nil {
-		return nil, err
-	}
-	ct := resp.Headers()["Content-Type"]
-	if ct != "" && !strings.Contains(ct, "text/html") {
-		logger.L.Infof("url: %s content-type is %s\n", urlS, ct)
-		return nil, nil
-	}
-	body, err := resp.Body()
-	if err != nil {
-		return nil, err
-	}
-	var b bytes.Buffer
-	b.Write(body)
-	reader, err := charset.NewReader(&b, ct)
-	if err != nil {
-		return nil, err
-	}
-	return reader, nil
 }
 
 func (ps *pageService) extractText(doc *goquery.Document) string {
