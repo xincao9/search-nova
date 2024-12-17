@@ -85,7 +85,7 @@ func (c *crawler) Refresh() error {
 	return nil
 }
 
-func (c *crawler) Loop() {
+func (c *crawler) Run() {
 	ticker := time.NewTicker(time.Minute)
 	for range ticker.C {
 		if !c.running.CompareAndSwap(false, true) {

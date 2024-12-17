@@ -61,4 +61,5 @@ func routeStatic(engine *gin.Engine) {
 	engine.Static("/assets", filepath.Join(pr, "assets"))
 	engine.StaticFile("/favicon.ico", fmt.Sprintf("%s/favicon.ico", pr))
 	engine.StaticFile("/", fmt.Sprintf("%s/index.html", pr))
+	engine.StaticFile("/search", fmt.Sprintf("%s/index.html", pr))
 }

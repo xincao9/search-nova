@@ -6,6 +6,6 @@ import (
 )
 
 func main() {
-	crawler.C.Loop()
+	crawler.C.Run()
 	shutdown.S.Await()
 }
