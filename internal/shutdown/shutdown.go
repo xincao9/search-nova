@@ -47,5 +47,6 @@ func (s *shutdown) watch() {
 			f()
 		}
 		s.done <- true
+		os.Exit(0)
 	}()
 }

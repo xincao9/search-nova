@@ -40,7 +40,7 @@ export default {
             name="answer"
             type="text"
             v-model="answer"
-            style="width: 480px; height: 40px;"
+            style="width: 500px; height: 50px; font-size: 20px"
           />
         </div>
       </el-row>

@@ -44,7 +44,7 @@ export default {
     <el-header>
       <el-row style="margin-top:50px; margin-left: 20px">
         <img alt="logo" src="@/assets/logo.svg" style="width: 40px; height: 40px;"/>
-        <el-input v-model="answer" style="width: 480px; height: 40px; margin-left: 10px"/>
+        <el-input v-model="answer" style="width: 500px; height: 40px; margin-left: 10px; font-size: 20px"/>
         <el-button type="primary" style="height: 40px; margin-left: 5px" @click="handleSearch">
           <strong>Search</strong>
         </el-button>
