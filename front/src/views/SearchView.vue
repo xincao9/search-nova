@@ -55,7 +55,8 @@ export default {
       <div v-for="page in pages">
         <el-row>
           <a :href="page.url" style="margin-top: 15px" target="_blank">
-            <text style="font-size: 20px">{{ page.title }}</text>
+            <text v-if="page.keywords" style="font-size: 20px">{{ page.keywords }}</text>
+            <text v-if="page.title" style="font-size: 20px">{{ page.title }}</text>
           </a>
         </el-row>
         <el-row>

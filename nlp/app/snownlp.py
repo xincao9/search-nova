@@ -18,23 +18,32 @@
 # #	 数学于一体的科学',
 # #  u'自然语言处理是计算机科学领域与人工智能
 # #	 领域中的一个重要方向']
+import json
+import logging
 
 from flask import request, jsonify
 from snownlp import SnowNLP
 
 from . import bp
 
+logger = logging.getLogger(__name__)
 
 @bp.route('/analysis', methods=['POST'])
 def analysis():
     try:
-        data = request.get_json()
-        if data is None:
-            return jsonify({}), 400
+        data = request.get_data()
+        if len(data) == 0:
+            logger.warning(f"输入参数为空 data: {data}")
+            return jsonify({"error": "输入参数为空"}), 400
+        obj = json.load(data)
+        if obj is None:
+            logger.warning(f"输入参数为空 obj: {obj}")
+            return jsonify({"error": "输入参数为空"}), 400
         text = data['text']
         s = SnowNLP(text)
         keyword = s.keywords(5)
         summary = s.summary(5)
         return jsonify({"keyword": keyword, "summary": summary}), 200
     except Exception as e:
+        logger.error(f"执行异常 data: {data}, err: {e}")
         return jsonify({"error": e}), 500
