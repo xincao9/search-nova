@@ -18,7 +18,7 @@ func init() {
 
 func new() *shutdown {
 	return &shutdown{
-		done: make(chan bool),
+		done: make(chan bool, 1),
 	}
 }
 
@@ -40,13 +40,14 @@ func (s *shutdown) watch() {
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 	go func() {
 		sig := <-sigs
-		logger.L.Infof("捕捉到 %v 信号\n", sig)
+		logger.L.Infof("shutdown.watch() 捕捉到 %v 信号\n", sig)
 		total := len(s.funcs)
 		for no, f := range s.funcs {
-			logger.L.Infof("执行第 %d/%d 个终止任务\n", no, total)
+			logger.L.Infof("执行第 %d/%d 个终止任务\n", no+1, total)
 			f()
 		}
 		s.done <- true
 		os.Exit(0)
+		logger.L.Infof("shutdown.watch() 完成\n")
 	}()
 }
