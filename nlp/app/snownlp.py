@@ -31,19 +31,21 @@ logger = logging.getLogger(__name__)
 @bp.route('/analysis', methods=['POST'])
 def analysis():
     try:
-        data = request.get_data()
-        if len(data) == 0:
-            logger.warning(f"输入参数为空 data: {data}")
-            return jsonify({"error": "输入参数为空"}), 400
-        obj = json.load(data)
+        obj = request.get_json()
         if obj is None:
             logger.warning(f"输入参数为空 obj: {obj}")
             return jsonify({"error": "输入参数为空"}), 400
-        text = data['text']
+        if 'text' not in obj:
+            logger.warning(f"请求体缺少text字段 obj: {obj}")
+            return jsonify({"error": "请求体缺少text字段"}), 400
+        text = obj['text']
         s = SnowNLP(text)
         keyword = s.keywords(5)
         summary = s.summary(5)
         return jsonify({"keyword": keyword, "summary": summary}), 200
+    except json.JSONDecodeError as e:
+        logger.error(f"JSON解码错误 obj: {obj}, err: {e}")
+        return jsonify({"error": "JSON解码错误"}), 400
     except Exception as e:
-        logger.error(f"执行异常 data: {data}, err: {e}")
+        logger.error(f"执行异常 obj: {obj}, err: {e}")
         return jsonify({"error": e}), 500

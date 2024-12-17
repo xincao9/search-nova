@@ -62,6 +62,9 @@ export default {
         <el-row>
           <text style="margin-top:10px; font-size: 16px">{{ page.describe }}</text>
         </el-row>
+        <el-row>
+          <a href="page.url" style="margin-top:10px; font-size: 12px">{{ page.url }}</a>
+        </el-row>
         <el-divider/>
       </div>
     </el-main>
