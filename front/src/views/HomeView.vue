@@ -9,6 +9,9 @@ export default {
     const answer = ref('');
     const router = useRouter();
     const handleSearch = () => {
+      if (answer.value == null || answer.value.length <= 0) {
+        return;
+      }
       router.push({name: 'search', query: {answer: answer.value}});
     };
 
@@ -41,6 +44,7 @@ export default {
             name="answer"
             style="width: 500px; height: 50px; font-size: 20px"
             type="text"
+            @keydown.enter="handleSearch"
           />
         </div>
       </el-row>

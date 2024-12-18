@@ -23,6 +23,9 @@ export default {
     };
 
     const handleSearch = () => {
+      if (answer.value == null || answer.value.length <= 0) {
+        return;
+      }
       router.replace({query: {answer: answer.value}});
       fetchData();
     };
@@ -47,7 +50,8 @@ export default {
              style="width: 40px; height: 40px;"/>
         <el-input v-model="answer"
                   style="width: 500px; height: 40px; margin-left: 10px;
-                  font-size: 20px"/>
+                  font-size: 20px"
+                  @keydown.enter="handleSearch"/>
         <el-button style="height: 40px; margin-left: 5px"
                    type="primary"
                    @click="handleSearch">
