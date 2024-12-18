@@ -30,12 +30,17 @@ export default {
       fetchData();
     };
 
+    const goHome = () => {
+      router.push({name: 'home'});
+    }
+
     onMounted(fetchData);
 
     return {
       answer,
       pages,
       handleSearch,
+      goHome,
     };
   },
 };
@@ -47,7 +52,8 @@ export default {
       <el-row style="margin-top:50px; margin-left: 20px">
         <img alt="logo"
              src="@/assets/logo.svg"
-             style="width: 40px; height: 40px;"/>
+             style="width: 40px; height: 40px;"
+             @click="goHome"/>
         <el-input v-model="answer"
                   style="width: 500px; height: 40px; margin-left: 10px;
                   font-size: 20px"
@@ -64,18 +70,18 @@ export default {
       <div v-for="page in pages">
         <el-row>
           <a :href="page.url" style="margin-top: 10px" target="_blank">
-            <e-text v-if="page.keywords"
+            <el-text v-if="page.keywords"
                     v-highlight="[answer, 'highlight-class']"
                     style="font-size: 20px"
                     v-html="page.keywords"
                     truncated>
-            </e-text>
-            <e-text v-else
+            </el-text>
+            <el-text v-else
                     v-highlight="[answer, 'highlight-class']"
                     style="font-size: 20px"
                     v-html="page.title"
                     truncated>
-            </e-text>
+            </el-text>
           </a>
         </el-row>
         <el-row>
