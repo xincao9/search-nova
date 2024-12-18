@@ -142,8 +142,11 @@ func (c *crawler) TextAnalysis(p *mp.Page) error {
 		}
 	})
 	p.Content = c.extractText(doc)
-
-	if p.Content != "" {
+	if p.Content == "" {
+		if strings.TrimSpace(p.Title) == "" || strings.TrimSpace(p.Describe) == "" || strings.TrimSpace(p.Keywords) == "" {
+			return errors.New("字段缺失")
+		}
+	} else {
 		nlpR, err := c.nlp(p)
 		if nlpR != nil && err == nil {
 			if p.Keywords == "" && len(nlpR.Keyword) > 0 {
