@@ -144,7 +144,7 @@ func (c *crawler) TextAnalysis(p *mp.Page) error {
 	p.Content = c.extractText(doc)
 
 	if p.Content != "" {
-		nlpR, err := c.nlp(p.Content)
+		nlpR, err := c.nlp(p)
 		if nlpR != nil && err == nil {
 			if p.Keywords == "" && len(nlpR.Keyword) > 0 {
 				p.Keywords = strings.Join(nlpR.Keyword, " ")
@@ -215,15 +215,14 @@ func (c *crawler) extractText(doc *goquery.Document) string {
 	return strings.TrimSpace(builder.String())
 }
 
-func (c *crawler) nlp(text string) (*NlpResponse, error) {
+func (c *crawler) nlp(p *mp.Page) (*NlpResponse, error) {
 	obj := struct {
-		text string `json:"text"`
-	}{text: text}
+		Text string `json:"text"`
+	}{Text: p.Content}
 	body, err := json.Marshal(obj)
 	if err != nil {
 		return nil, err
 	}
-	logger.L.Infof("nlp request body: %s\n", string(body))
 	var b bytes.Buffer
 	b.Write(body)
 	req, err := http.NewRequest(http.MethodPost, config.C.GetString(constant.NlpEndpoint), &b)
