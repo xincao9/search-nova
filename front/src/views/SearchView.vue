@@ -73,24 +73,25 @@ export default {
         <el-row>
           <a :href="page.url" style="margin-top: 10px" target="_blank">
             <el-text v-if="page.keywords"
-                    v-highlight="[answer, 'highlight-class']"
+                     truncated>
+              <span v-highlight="[answer, 'highlight-class']"
                     style="font-size: 20px"
-                    v-html="page.keywords"
-                    truncated>
+                    v-html="page.keywords">
+              </span>
             </el-text>
             <el-text v-else
-                    v-highlight="[answer, 'highlight-class']"
-                    style="font-size: 20px"
-                    v-html="page.title"
                     truncated>
+              <span v-highlight="[answer, 'highlight-class']"
+                    style="font-size: 20px"
+                    v-html="page.title">
+              </span>
             </el-text>
           </a>
         </el-row>
-        <el-row>
-          <el-text v-highlight="[answer, 'highlight-class']"
-                   style="margin-top:10px; font-size: 16px"
-                   v-html="page.describe"
+        <el-row style="margin-top:10px">
+          <el-text style="font-size: 16px"
                    truncated>
+            <span v-highlight="[answer, 'highlight-class']" v-html="page.describe"></span>
           </el-text>
         </el-row>
         <el-row>
