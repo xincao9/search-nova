@@ -212,24 +212,9 @@ func (c *crawler) extractText(doc *goquery.Document) string {
 			builder.WriteRune(' ')
 		}
 	})
-	return builder.String()
+	return strings.TrimSpace(builder.String())
 }
 
-// {code
-// $ curl -X POST -H 'content-type:application/json;charset=utf-8' 'http://localhost:5000/analysis' -d '{"text":"自然语言处理是计算机科学领域与人工智能领域中的一个重要方向"}'
-// {
-// "keyword": [
-// "领域",
-// "智能",
-// "人工",
-// "科学",
-// "计算机"
-// ],
-// "summary": [
-// "自然语言处理是计算机科学领域与人工智能领域中的一个重要方向"
-// ]
-// }
-// }
 func (c *crawler) nlp(text string) (*NlpResponse, error) {
 	obj := struct {
 		text string `json:"text"`
@@ -238,20 +223,21 @@ func (c *crawler) nlp(text string) (*NlpResponse, error) {
 	if err != nil {
 		return nil, err
 	}
+	logger.L.Infof("nlp request body: %s\n", string(body))
 	var b bytes.Buffer
 	b.Write(body)
 	req, err := http.NewRequest(http.MethodPost, config.C.GetString(constant.NlpEndpoint), &b)
 	req.Header.Set("content-type", "application/json")
-	resq, err := http.DefaultClient.Do(req)
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
-	if resq.StatusCode != http.StatusOK {
-		return nil, errors.New(fmt.Sprintf("nlp 返回 status: %d\n", resq.StatusCode))
+	if resp.StatusCode != http.StatusOK {
+		return nil, errors.New(fmt.Sprintf("nlp 返回 status: %d\n", resp.StatusCode))
 	}
-	defer resq.Body.Close()
+	defer resp.Body.Close()
 	var nlpR NlpResponse
-	err = json.NewDecoder(resq.Body).Decode(&nlpR)
+	err = json.NewDecoder(resp.Body).Decode(&nlpR)
 	if err != nil {
 		return nil, err
 	}
