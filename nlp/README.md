@@ -1,5 +1,12 @@
 # NLP Project
 
+### 部署
+
+```shell
+python3 install -r requirements.txt
+python3 run.py
+```
+
 ### 文本分析
 
 ```text
