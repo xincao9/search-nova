@@ -13,6 +13,7 @@ const (
 	ElasticsearchUsername              = "elasticsearch.username"
 	ElasticsearchPassword              = "elasticsearch.password"
 	ElasticsearchIndex                 = "elasticsearch.index"
+	NlpEndpoint                        = "nlp.endpoint"
 )
 
 const (

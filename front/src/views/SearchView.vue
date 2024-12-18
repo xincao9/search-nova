@@ -15,8 +15,7 @@ export default {
 
     const fetchData = async () => {
       try {
-        const url = `http://localhost:8080/page?text=${answer.value}`;
-        const response = await axios.get(url);
+        const response = await axios.get(`/page?text=${answer.value}`);
         pages.value = response.data.data;
       } catch (err) {
         console.error(err);

@@ -14,4 +14,6 @@ server:
 public:
   dir: ./front/dist
 elasticsearch:
-  password: TCzhcDyUPVuwVPAcYJw=
+  password: "TCzhcDyUPVuwVPAcYJw="
+nlp:
+  endpoint: http://localhost:5000/analysis

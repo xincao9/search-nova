@@ -64,6 +64,7 @@ func init() {
 	C.SetDefault(constant.ElasticsearchUsername, "elastic")
 	C.SetDefault(constant.ElasticsearchPassword, "")
 	C.SetDefault(constant.ElasticsearchIndex, "search_nova")
+	C.SetDefault(constant.NlpEndpoint, "http://localhost:5000/analysis")
 	err := C.ReadInConfig()
 	if err != nil {
 		log.Fatalf("Fatal error conf : %v\n", err)

@@ -11,6 +11,7 @@ import (
 	"net/url"
 	"regexp"
 	"search-nova/internal/chromium"
+	"search-nova/internal/config"
 	"search-nova/internal/constant"
 	"search-nova/internal/es"
 	"search-nova/internal/logger"
@@ -84,6 +85,9 @@ func (c *crawler) Refresh() error {
 				logger.L.Errorf("page.Save(%v) err %v\n", p, err)
 			}
 		})
+		if err != nil {
+			logger.L.Errorf("ants.Pool.Submit() err %v\n", err)
+		}
 	}
 	wg.Wait()
 	return nil
@@ -229,14 +233,14 @@ func (c *crawler) extractText(doc *goquery.Document) string {
 func (c *crawler) nlp(text string) (*NlpResponse, error) {
 	obj := struct {
 		text string `json:"text"`
-	}{text: ""}
+	}{text: text}
 	body, err := json.Marshal(obj)
 	if err != nil {
 		return nil, err
 	}
 	var b bytes.Buffer
 	b.Write(body)
-	req, err := http.NewRequest(http.MethodPost, "http://localhost:5000/analysis", &b)
+	req, err := http.NewRequest(http.MethodPost, config.C.GetString(constant.NlpEndpoint), &b)
 	req.Header.Set("content-type", "application/json")
 	resq, err := http.DefaultClient.Do(req)
 	if err != nil {
