@@ -59,7 +59,10 @@ export default {
           </a>
         </el-row>
         <el-row>
-          <el-text style="margin-top:10px; font-size: 16px" truncated>{{ page.describe }}</el-text>
+          <el-text style="margin-top:10px" truncated>
+            <span v-highlight="[answer, 'highlight-class']" style="font-size: 16px"
+                  v-html="page.describe"></span>
+          </el-text>
         </el-row>
         <el-row>
           <a :href="page.url" style="margin-top:10px; font-size: 12px" target="_blank">{{ page.url }}</a>
