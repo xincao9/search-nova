@@ -46,10 +46,17 @@ export default {
       </el-row>
       <el-row justify="center">
         <div style="margin-top: 30px">
-          <el-button :icon="Search" plain size="large" type="primary" @click="handleSearch">
+          <el-button
+            :icon="Search"
+            plain
+            size="large"
+            type="primary"
+            @click="handleSearch">
             <strong>Good Search</strong>
           </el-button>
-          <el-button plain size="large" @click="handleLucky">
+          <el-button plain
+                     size="large"
+                     @click="handleLucky">
             <strong>I'm Feeling Lucky</strong>
           </el-button>
         </div>

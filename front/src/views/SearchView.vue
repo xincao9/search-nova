@@ -42,9 +42,15 @@ export default {
   <el-container>
     <el-header>
       <el-row style="margin-top:50px; margin-left: 20px">
-        <img alt="logo" src="@/assets/logo.svg" style="width: 40px; height: 40px;"/>
-        <el-input v-model="answer" style="width: 500px; height: 40px; margin-left: 10px; font-size: 20px"/>
-        <el-button style="height: 40px; margin-left: 5px" type="primary" @click="handleSearch">
+        <img alt="logo"
+             src="@/assets/logo.svg"
+             style="width: 40px; height: 40px;"/>
+        <el-input v-model="answer"
+                  style="width: 500px; height: 40px; margin-left: 10px;
+                  font-size: 20px"/>
+        <el-button style="height: 40px; margin-left: 5px"
+                   type="primary"
+                   @click="handleSearch">
           <strong>Search</strong>
         </el-button>
       </el-row>
@@ -54,18 +60,33 @@ export default {
       <div v-for="page in pages">
         <el-row>
           <a :href="page.url" style="margin-top: 10px" target="_blank">
-            <e-text v-if="page.keywords" style="font-size: 20px" truncated>{{ page.keywords }}</e-text>
-            <e-text v-if="page.title" style="font-size: 20px" truncated>{{ page.title }}</e-text>
+            <e-text v-if="page.keywords"
+                    v-highlight="[answer, 'highlight-class']"
+                    style="font-size: 20px"
+                    v-html="page.keywords"
+                    truncated>
+            </e-text>
+            <e-text v-else
+                    v-highlight="[answer, 'highlight-class']"
+                    style="font-size: 20px"
+                    v-html="page.title"
+                    truncated>
+            </e-text>
           </a>
         </el-row>
         <el-row>
-          <el-text style="margin-top:10px" truncated>
-            <span v-highlight="[answer, 'highlight-class']" style="font-size: 16px"
-                  v-html="page.describe"></span>
+          <el-text v-highlight="[answer, 'highlight-class']"
+                   style="margin-top:10px; font-size: 16px"
+                   v-html="page.describe"
+                   truncated>
           </el-text>
         </el-row>
         <el-row>
-          <a :href="page.url" style="margin-top:10px; font-size: 12px" target="_blank">{{ page.url }}</a>
+          <a :href="page.url"
+             style="margin-top:10px; font-size: 12px"
+             target="_blank">
+            <el-text truncated>{{ page.url }}</el-text>
+          </a>
         </el-row>
         <el-divider style="margin: 10px 0"/>
       </div>
