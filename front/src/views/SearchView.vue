@@ -28,13 +28,13 @@ export default {
       }
       router.replace({query: {answer: answer.value}});
       fetchData();
-    };
+    }
 
     const goHome = () => {
       router.push({name: 'home'});
     }
 
-    onMounted(fetchData);
+    onMounted(handleSearch);
 
     return {
       answer,
@@ -55,9 +55,11 @@ export default {
              style="width: 40px; height: 40px;"
              @click="goHome"/>
         <el-input v-model="answer"
-                  style="width: 500px; height: 40px; margin-left: 10px;
-                  font-size: 20px"
-                  @keydown.enter="handleSearch"/>
+                  clearable
+                  placeholder="请输入内容"
+                  style="width: 500px; height: 40px; margin-left: 10px; font-size: 20px"
+                  @keydown.enter="handleSearch">
+        </el-input>
         <el-button style="height: 40px; margin-left: 5px"
                    type="primary"
                    @click="handleSearch">

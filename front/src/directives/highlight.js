@@ -12,7 +12,4 @@ export default {
     // Create a span for each match and apply the highlight class
     el.innerHTML = el.innerHTML.replace(regex, `<span class="${highlightClass}">$1</span>`);
   },
-  updated(el, binding) {
-    this.mounted(el, binding);
-  }
 };
